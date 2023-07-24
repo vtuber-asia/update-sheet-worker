@@ -1,8 +1,6 @@
 from gservices import gspread_service, youtube_service
 from datetime import datetime
 import os
-import requests
-from bs4 import BeautifulSoup
 
 
 def fetch_channel_ids_cells():
