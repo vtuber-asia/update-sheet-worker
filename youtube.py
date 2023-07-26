@@ -39,14 +39,12 @@ def store_channels(channels):
                 cell_videos_count(channel),
                 cell_views_count(channel),
                 cell_subscribers_count(channel),
-                cell_link(channel),
                 timestamp
             ])
         else:
             write_rows.append([
                 "",
                 channel_id_rows[0],
-                "",
                 "",
                 "",
                 "",
@@ -60,7 +58,7 @@ def store_channels(channels):
     }
     return gspread_service().spreadsheets().values().update(
         spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="G3:P",
+        range="G3:O",
         valueInputOption="USER_ENTERED",
         body=body,
     ).execute()
@@ -76,7 +74,7 @@ def find_channel(channels, channel_id):
 def cell_customUrl(channel):
     if 'snippet' in channel \
             and 'customUrl' in channel['snippet']:
-        return channel['snippet']['customUrl']
+        return f'=hyperlink("https://www.youtube.com/{channel["snippet"]["customUrl"]}"; "{channel["snippet"]["customUrl"]}")'
     else:
         return ""
 
@@ -94,7 +92,7 @@ def cell_thumbnail(channel):
             and 'thumbnails' in channel['snippet'] \
             and 'default' in channel['snippet']['thumbnails'] \
             and 'url' in channel['snippet']['thumbnails']['default']:
-        return '=IMAGE("{}"; 4; 80; 80)'.format(channel["snippet"]["thumbnails"]["default"]["url"])
+        return f'=IMAGE("{channel["snippet"]["thumbnails"]["default"]["url"]}"; 4; 80; 80)'
     else:
         return ""
 
@@ -103,7 +101,7 @@ def cell_banner(channel):
     if 'brandingSettings' in channel \
             and 'image' in channel['brandingSettings'] \
             and 'bannerExternalUrl' in channel['brandingSettings']['image']:
-        return '=IMAGE("{}"; 4; 73; 130)'.format(channel["brandingSettings"]["image"]["bannerExternalUrl"])
+        return f'=IMAGE("{channel["brandingSettings"]["image"]["bannerExternalUrl"]}"; 4; 73; 130)'
     else:
         return ""
 
@@ -128,12 +126,5 @@ def cell_subscribers_count(channel):
     if 'statistics' in channel \
             and 'subscriberCount' in channel['statistics']:
         return channel['statistics']['subscriberCount']
-    else:
-        return ""
-
-
-def cell_link(channel):
-    if 'id' in channel:
-        return '=hyperlink("https://www.youtube.com/channel/{}"; "LINK")'.format(channel["id"])
     else:
         return ""
