@@ -12,7 +12,7 @@ def fetch_channel_ids_cells():
 
 def fetch_channel_ids():
     values = fetch_channel_ids_cells()["values"]
-    map_channel_id = lambda row: row[0]
+    def map_channel_id(row): return row[0]
     return list(map(map_channel_id, values))
 
 
@@ -80,7 +80,7 @@ def cell_customUrl(channel):
     else:
         return ""
 
-    
+
 def cell_title(channel):
     if 'snippet' in channel \
             and 'title' in channel['snippet']:
@@ -130,7 +130,7 @@ def cell_subscribers_count(channel):
         return channel['statistics']['subscriberCount']
     else:
         return ""
-    
+
 
 def cell_link(channel):
     if 'id' in channel:

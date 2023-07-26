@@ -31,3 +31,15 @@ def list_permissions(file_id):
         fileId=file_id,
         fields='*'
     ).execute()
+
+
+if __name__ == '__main__':
+    from dotenv import load_dotenv
+    import os
+    load_dotenv()
+    file_id = os.getenv('GOOGLE_SHEET_ID')
+    email = os.getenv('GOOGLE_USER_EMAIL')
+    role = 'writer'
+    created = create_permission(file_id, email, role)
+    readonly = publish_readonly(file_id)
+    print("OK")

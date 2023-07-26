@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from youtube import fetch_channel_ids, fetch_channels, store_channels
 from utils import split
+from links import twitter
 
 
 def main():
