@@ -5,7 +5,8 @@ from links import store_links
 from utils import split
 from links import twitter, twitch, tiktok, remove_handler
 from twitch import fetch_twitch_usernames, fetch_users, store_twitch_channels, fetch_followers_count_batch, store_followers_counts
-from tiktok import fetch_tiktok_usernames, fetch_tiktok_channels, store_tiktok_channels
+from tiktok import fetch_tiktok_usernames, store_tiktok_channels
+from tiktok_ext import fetch_tiktok_channels
 import time
 
 
