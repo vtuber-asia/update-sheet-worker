@@ -95,19 +95,3 @@ def cell_videos_count(tiktok_channel):
         return tiktok_channel['videos_count']
     else:
         return 0
-
-
-if __name__ == '__main__':
-    from dotenv import load_dotenv
-    from utils import split
-    from tiktok_ext import fetch_tiktok_channels
-    import time
-
-    load_dotenv()
-    tiktok_username_slices = split(fetch_tiktok_usernames(), 50)
-    tiktok_channels = []
-    for slice in tiktok_username_slices:
-        fetched = fetch_tiktok_channels(slice)
-        tiktok_channels.extend(fetched)
-        time.sleep(1)
-    print(store_tiktok_channels(tiktok_channels))

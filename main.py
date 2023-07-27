@@ -5,6 +5,7 @@ from links import store_links
 from utils import split
 from links import twitter, twitch, tiktok, remove_handler
 from twitch import fetch_twitch_usernames, fetch_users, store_twitch_channels, fetch_followers_count_batch, store_followers_counts
+from tiktok import fetch_tiktok_usernames, fetch_tiktok_channels, store_tiktok_channels
 import time
 
 
@@ -47,6 +48,14 @@ def main():
         followers_counts.extend(fetched)
         time.sleep(1)
     print(store_followers_counts(followers_counts))
+    # Fetch & store data related to TikTok
+    tiktok_username_slices = split(fetch_tiktok_usernames(), 50)
+    tiktok_channels = []
+    for slice in tiktok_username_slices:
+        fetched = fetch_tiktok_channels(slice)
+        tiktok_channels.extend(fetched)
+        time.sleep(1)
+    print(store_tiktok_channels(tiktok_channels))
 
 
 if __name__ == '__main__':
