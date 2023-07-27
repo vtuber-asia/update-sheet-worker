@@ -90,7 +90,7 @@ def store_links(links):
             ])
     data = [
         {
-            "range": "V3:V",
+            "range": "AB3:AB",
             'values': twitter_username_rows,
         },
         {
