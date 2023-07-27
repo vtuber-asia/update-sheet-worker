@@ -71,7 +71,7 @@ def store_tiktok_channels(tiktok_channels):
 
 def cell_thumbnail(tiktok_channel):
     if 'thumbnail' in tiktok_channel and tiktok_channel['thumbnail'] is not None:
-        return f'=image("{tiktok_channel["thumbnail"]}")'
+        return f'=image("{tiktok_channel["thumbnail"]}"; 4; 80; 80)'
     else:
         return ""
     
