@@ -17,8 +17,11 @@ def fetch_channel_depth(channel_id):
             '//script[contains(., "ytInitialData")]/text()')[0]
         data = json.loads(js_text[js_text.find('{'):js_text.rfind('}') + 1])
         header_links_prop = data['header']['c4TabbedHeaderRenderer']['headerLinks']['channelHeaderLinksRenderer']
-        header_links_raw = header_links_prop['primaryLinks'] + \
-            header_links_prop['secondaryLinks']
+        header_links_raw = []
+        if 'primaryLinks' in header_links_prop:
+            header_links_raw += header_links_prop['primaryLinks']
+        if 'secondaryLinks' in header_links_prop:
+            header_links_raw += header_links_prop['secondaryLinks']
         def map_header_links(link): return {
             'title': link['title']['simpleText'],
             'url': parse_redirect_link(link['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url']),
@@ -49,7 +52,10 @@ def fetch_channel_depths(channel_ids):
 
 
 def parse_redirect_link(link):
-    return parse_qs(urlparse(link).query)['q'][0]
+    parsed_redirect_links = parse_qs(urlparse(link).query)
+    if 'q' in parsed_redirect_links and len(parsed_redirect_links['q']) > 0:
+        return parsed_redirect_links['q'][0]
+    return link
 
 
 def parse_platform(link):
