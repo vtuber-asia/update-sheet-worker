@@ -1,10 +1,8 @@
 from gservices import gspread_service
 import requests
 import os
-from utils import split
 from links import remove_handler
 from datetime import datetime
-import time
 
 
 def fetch_twitch_usernames_cells():
@@ -161,23 +159,3 @@ def cell_profile_image(twitch_channel):
         return f'=IMAGE("{twitch_channel["profile_image_url"]}"; 4; 80; 80)'
     else:
         return ""
-
-
-if __name__ == '__main__':
-    from dotenv import load_dotenv
-    load_dotenv()
-    twitch_usernames_slices = split(fetch_twitch_usernames(), 100)
-    users = []
-    for slice in twitch_usernames_slices:
-        fetched = fetch_users(list(map(remove_handler, slice)))
-        users.extend(fetched['data'])
-        print(fetched)
-    print(store_twitch_channels(users))
-    twitch_users_slices = split(users, 50)
-    followers_counts = []
-    for slice in twitch_users_slices:
-        fetched = fetch_followers_count_batch(list(map(lambda user: user['id'], slice)))
-        followers_counts.extend(fetched)
-        time.sleep(1)
-    print(store_followers_counts(followers_counts))
-    

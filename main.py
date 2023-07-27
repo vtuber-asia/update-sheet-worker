@@ -3,7 +3,8 @@ from youtube import fetch_channel_ids, fetch_channels, store_channels
 from youtube_ext import fetch_channel_depths
 from links import store_links
 from utils import split
-from links import twitter, twitch
+from links import twitter, twitch, remove_handler
+from twitch import fetch_twitch_usernames, fetch_users, store_twitch_channels, fetch_followers_count_batch, store_followers_counts
 import time
 
 
@@ -16,7 +17,7 @@ def main():
     for slice in youtube_ids_slices:
         fetched = fetch_channels(slice)['items']
         channels.extend(fetched)
-    store_channels(channels)
+    print(store_channels(channels))
     # Fetch & store data related to other platforms
     links = []
     for slice in youtube_ids_slices:
@@ -28,7 +29,23 @@ def main():
                 "twitch_username": twitch(item['links'])
             })
         time.sleep(1)
-    store_links(links)
+    print(store_links(links))
+    # Fetch & store data related to Twitch
+    twitch_usernames_slices = split(fetch_twitch_usernames(), 100)
+    users = []
+    for slice in twitch_usernames_slices:
+        fetched = fetch_users(list(map(remove_handler, slice)))
+        users.extend(fetched['data'])
+        print(fetched)
+    print(store_twitch_channels(users))
+    # Fetch & store data related to Twitch followers count
+    twitch_users_slices = split(users, 50)
+    followers_counts = []
+    for slice in twitch_users_slices:
+        fetched = fetch_followers_count_batch(list(map(lambda user: user['id'], slice)))
+        followers_counts.extend(fetched)
+        time.sleep(1)
+    print(store_followers_counts(followers_counts))
 
 
 if __name__ == '__main__':
