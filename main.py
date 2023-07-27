@@ -3,7 +3,7 @@ from youtube import fetch_channel_ids, fetch_channels, store_channels
 from youtube_ext import fetch_channel_depths
 from links import store_links
 from utils import split
-from links import twitter, twitch, remove_handler
+from links import twitter, twitch, tiktok, remove_handler
 from twitch import fetch_twitch_usernames, fetch_users, store_twitch_channels, fetch_followers_count_batch, store_followers_counts
 import time
 
@@ -26,7 +26,8 @@ def main():
             links.append({
                 "youtube_channel_id": item['youtube_channel_id'],
                 "twitter_username": twitter(item['links']),
-                "twitch_username": twitch(item['links'])
+                "twitch_username": twitch(item['links']),
+                "tiktok_username": tiktok(item['links'])
             })
         time.sleep(1)
     print(store_links(links))

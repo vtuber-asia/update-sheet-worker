@@ -21,6 +21,13 @@ def twitch(links):
     return None
 
 
+def tiktok(links):
+    tiktoks = list(filter(has_tiktok, links))
+    if len(tiktoks) > 0:
+        return tiktoks[0]['username']
+    return None
+
+
 def has_twitter(link):
     if 'platform' in link and link['platform'] == 'twitter':
         return True
@@ -33,10 +40,17 @@ def has_twitch(link):
     return False
 
 
+def has_tiktok(link):
+    if 'platform' in link and link['platform'] == 'tiktok':
+        return True
+    return False
+
+
 def store_links(links):
     channel_ids_ranges = fetch_channel_ids_cells()["values"]
     twitter_username_rows = []
     twitch_username_rows = []
+    tiktok_username_rows = []
     for channel_id_rows in channel_ids_ranges:
         link = find_link(links, channel_id_rows[0])
         if link is not None:
@@ -56,6 +70,14 @@ def store_links(links):
                 twitch_username_rows.append([
                     '',
                 ])
+            if 'tiktok_username' in link and link['tiktok_username'] is not None:
+                tiktok_username_rows.append([
+                    f'=hyperlink("https://tiktok.com/{link["tiktok_username"]}"; "{link["tiktok_username"]}")',
+                ])
+            else:
+                tiktok_username_rows.append([
+                    '',
+                ])
         else:
             twitter_username_rows.append([
                 '',
@@ -63,14 +85,21 @@ def store_links(links):
             twitch_username_rows.append([
                 '',
             ])
+            tiktok_username_rows.append([
+                '',
+            ])
     data = [
         {
-            "range": "U3:U",
+            "range": "V3:V",
             'values': twitter_username_rows,
         },
         {
             "range": "P3:P",
             'values': twitch_username_rows,
+        },
+        {
+            "range": "U3:U",
+            'values': tiktok_username_rows,
         },
     ]
     body = {
