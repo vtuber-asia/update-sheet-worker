@@ -88,3 +88,10 @@ def find_link(links, channel_id):
         if link["youtube_channel_id"] == channel_id:
             return link
     return None
+
+
+def remove_handler(username):
+    if username.startswith('@'):
+        return username[1:]
+    else:
+        return username
