@@ -10,17 +10,17 @@ import time
 def main():
     load_dotenv()
     # Fetch & store data related to YouTube
-    channel_ids = fetch_channel_ids()
-    requests = split(channel_ids, 50)
+    channel_ids = fetch_channel_ids() 
+    youtube_ids_slices = split(channel_ids, 50)
     channels = []
-    for request in requests:
-        fetched = fetch_channels(request)['items']
+    for slice in youtube_ids_slices:
+        fetched = fetch_channels(slice)['items']
         channels.extend(fetched)
     store_channels(channels)
     # Fetch & store data related to other platforms
     links = []
-    for request in requests:
-        fetched = fetch_channel_depths(request)
+    for slice in youtube_ids_slices:
+        fetched = fetch_channel_depths(slice)
         for item in fetched:
             links.append({
                 "youtube_channel_id": item['youtube_channel_id'],
