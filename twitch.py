@@ -3,6 +3,7 @@ import requests
 import os
 from links import remove_handler
 from datetime import datetime
+from multiprocessing import Pool
 
 
 def fetch_twitch_usernames_cells():
@@ -56,10 +57,12 @@ def fetch_users(usernames):
 
 def fetch_followers_count_batch(broadcaster_ids):
     result = []
-    for broadcaster_id in broadcaster_ids:
-        result.append(fetch_followers_count(broadcaster_id))
+    with Pool() as p:
+        result = p.map(fetch_followers_count, broadcaster_ids)
+        p.close()
+        p.join()
     return result
-
+    
 
 def fetch_followers_count(broadcaster_id):
     print(f"Fetching followers count for {broadcaster_id}")

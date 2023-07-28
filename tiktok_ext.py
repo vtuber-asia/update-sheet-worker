@@ -1,41 +1,48 @@
 import requests
 from lxml import html
 import json
-from links import remove_handler
+from multiprocessing import Pool
 
 
-def fetch_tiktok_channel(username):
+def fetch_tiktok_channel(username, retries_left=5):
     url = f"https://www.tiktok.com/{username}"
-    page = requests.get(url)
-    print(f"Fetching tiktok user page for {username} ...")
     try:
-        tree = html.document_fromstring(
-            page.content.decode(encoding='iso-8859-1'))
-        js_text = tree.xpath(
-            '//script[@id="SIGI_STATE"]')[0]
-        data = json.loads(js_text.text)
-        username_no_handler = remove_handler(username)
+        if retries_left == 0:
+            return None
+        page = requests.get(url, allow_redirects=False)
+        print(f'Got page for {username}: {page.status_code}, retries left: {retries_left}')
+        if page.status_code != 200:
+            raise UnsuccessfulResponse
+        tree = html.document_fromstring(page.content.decode(encoding='iso-8859-1'))
+        paths = tree.xpath('//script[@id="SIGI_STATE"]')
+        data = json.loads(paths[0].text)
+        unique_id = data['UserPage']['uniqueId']
         tiktok_user = {
             'username': username,
-            'id': data['UserModule']['users'][username_no_handler]['id'],
-            'thumbnail': data['UserModule']['users'][username_no_handler]['avatarThumb'],
-            'followers_count': data['UserModule']['stats'][username_no_handler]['followerCount'],
-            'hearts_count': data['UserModule']['stats'][username_no_handler]['heartCount'],
-            'videos_count': data['UserModule']['stats'][username_no_handler]['videoCount'],
+            'id': data['UserModule']['users'][unique_id]['id'],
+            'thumbnail': data['UserModule']['users'][unique_id]['avatarThumb'],
+            'followers_count': data['UserModule']['stats'][unique_id]['followerCount'],
+            'hearts_count': data['UserModule']['stats'][unique_id]['heartCount'],
+            'videos_count': data['UserModule']['stats'][unique_id]['videoCount'],
         }
         return tiktok_user
-    except Exception as e:
-        print(e)
+    except UnsuccessfulResponse:
         return None
+    except Exception as e:
+        return fetch_tiktok_channel(username, retries_left - 1)
 
 
 def fetch_tiktok_channels(usernames):
     tiktok_users = []
-    for username in usernames:
-        tiktok_user = fetch_tiktok_channel(username)
-        if tiktok_user is not None:
-            tiktok_users.append(tiktok_user)
-    return tiktok_users
+    with Pool() as p:
+        tiktok_users = p.map(fetch_tiktok_channel, usernames)
+        p.close()
+        p.join()
+    return list(filter(lambda x: x is not None, tiktok_users))
+
+
+class UnsuccessfulResponse(Exception):
+    pass
 
 
 if __name__ == '__main__':
