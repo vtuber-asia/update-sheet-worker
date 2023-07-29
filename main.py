@@ -7,6 +7,7 @@ from links import twitter, twitch, tiktok, remove_handler
 from twitch import fetch_twitch_usernames, fetch_users, store_twitch_channels, fetch_followers_count_batch, store_followers_counts
 from tiktok import fetch_tiktok_usernames, store_tiktok_channels
 from tiktok_ext import fetch_tiktok_channels
+from twitter import fetch_twitter_usernames, fetch_twitter_user, store_twitter_users
 from multiprocessing import Pool
 import time
 
@@ -54,6 +55,14 @@ def main():
     for slice in fetch_tiktok_channels(fetch_tiktok_usernames(), pool):
         tiktok_channels.append(slice)
     print(store_tiktok_channels(tiktok_channels))
+    # Fetch & store data related to Twitter
+    guest_token = None
+    twitter_users = []
+    for username in fetch_twitter_usernames():
+        data, guest_token = fetch_twitter_user(username[1:], guest_token)
+        twitter_users.append(data)
+    twitter_users = [user for user in twitter_users if user is not None]
+    print(store_twitter_users(twitter_users))
     pool.close()
     pool.join()
     end = time.time()
