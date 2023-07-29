@@ -4,7 +4,6 @@ import json
 from urllib.parse import urlparse, parse_qs
 from tldextract import extract
 import os.path
-from multiprocessing import Pool
 
 
 def fetch_channel_depth(channel_id):
@@ -44,11 +43,8 @@ def fetch_channel_depth(channel_id):
         }
 
 
-def fetch_channel_depths(channel_ids):
-    with Pool() as p:
-        channel_depths = p.map(fetch_channel_depth, channel_ids)
-        p.close()
-        p.join()
+def fetch_channel_depths(channel_ids, pool):
+    channel_depths = pool.map(fetch_channel_depth, channel_ids)
     return channel_depths
 
 

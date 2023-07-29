@@ -15,19 +15,17 @@ def main():
     load_dotenv()
     # Fetch & store data related to YouTube
     start = time.time()
+    pool = Pool()
     channel_ids = fetch_channel_ids()
     youtube_ids_slices = split(channel_ids, 50)
     youtube_channels = []
-    with Pool() as p:
-        responses = p.map(fetch_channels, youtube_ids_slices)
-        p.close()
-        p.join()
+    responses = pool.map(fetch_channels, youtube_ids_slices)
     for response in responses:
         youtube_channels.extend(response['items'])
     print(store_channels(youtube_channels))
     # Fetch & store data related to other platforms
     links = []
-    for item in fetch_channel_depths(channel_ids):
+    for item in fetch_channel_depths(channel_ids, pool):
         links.append({
             "youtube_channel_id": item['youtube_channel_id'],
             "twitter_username": twitter(item['links']),
@@ -39,10 +37,7 @@ def main():
     twitch_usernames = list(map(remove_handler, fetch_twitch_usernames()))
     twitch_usernames_slices = split(twitch_usernames, 100)
     users = []
-    with Pool() as p:
-        responses = p.map(fetch_users, twitch_usernames_slices)
-        p.close()
-        p.join()
+    responses = pool.map(fetch_users, twitch_usernames_slices)
     for response in responses:
         users.extend(response['data'])
     print(store_twitch_channels(users))
@@ -51,14 +46,16 @@ def main():
     twitch_users_slices = split(twitch_user_ids, 50)
     followers_counts = []
     for slice in twitch_users_slices:
-        fetched = fetch_followers_count_batch(slice)
+        fetched = fetch_followers_count_batch(slice, pool)
         followers_counts.extend(fetched)
     print(store_followers_counts(followers_counts))
     # Fetch & store data related to TikTok
     tiktok_channels = []
-    for slice in fetch_tiktok_channels(fetch_tiktok_usernames()):
+    for slice in fetch_tiktok_channels(fetch_tiktok_usernames(), pool):
         tiktok_channels.append(slice)
     print(store_tiktok_channels(tiktok_channels))
+    pool.close()
+    pool.join()
     end = time.time()
     print(f"Time taken: {end - start} seconds")
 

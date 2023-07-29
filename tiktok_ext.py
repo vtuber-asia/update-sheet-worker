@@ -1,7 +1,6 @@
 import requests
 from lxml import html
 import json
-from multiprocessing import Pool
 
 
 def fetch_tiktok_channel(username, retries_left=5):
@@ -32,12 +31,8 @@ def fetch_tiktok_channel(username, retries_left=5):
         return fetch_tiktok_channel(username, retries_left - 1)
 
 
-def fetch_tiktok_channels(usernames):
-    tiktok_users = []
-    with Pool() as p:
-        tiktok_users = p.map(fetch_tiktok_channel, usernames)
-        p.close()
-        p.join()
+def fetch_tiktok_channels(usernames, pool):
+    tiktok_users = pool.map(fetch_tiktok_channel, usernames)
     return list(filter(lambda x: x is not None, tiktok_users))
 
 
