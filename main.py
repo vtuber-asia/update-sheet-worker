@@ -37,9 +37,9 @@ def main():
     twitch_usernames = list(map(remove_handler, fetch_twitch_usernames()))
     twitch_usernames_slices = split(twitch_usernames, 100)
     users = []
-    responses = pool.map(fetch_users, twitch_usernames_slices)
-    for response in responses:
-        users.extend(response['data'])
+    for slice in twitch_usernames_slices:
+        fetched = fetch_users(slice)
+        users.extend(fetched['data'])
     print(store_twitch_channels(users))
     # Fetch & store data related to Twitch followers count
     twitch_user_ids = list(map(lambda user: user['id'], users))
