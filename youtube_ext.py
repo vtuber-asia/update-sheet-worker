@@ -1,9 +1,10 @@
-import requests
 from lxml import html
-import json
 from urllib.parse import urlparse, parse_qs
 from tldextract import extract
+import logging
 import os.path
+import json
+import requests
 
 
 def fetch_channel_depth(channel_id):
@@ -43,6 +44,35 @@ def fetch_channel_depth(channel_id):
         }
 
 
+def youtube_channel_for(username):
+    logging.info(f"Writing YouTube channel: {username}")
+    youtube_channel = youtube_channel_from_url(f"https://www.youtube.com/{username}")
+    if youtube_channel is None:
+        logging.warning(f"Could not find YouTube channel: {username}")
+        return None
+    return {
+        'username': username,
+        'channel_id': channel_id_on(youtube_channel),
+        'channel_title': channel_title_on(youtube_channel),
+        'badges': badges_on(youtube_channel),
+        'is_membership_active': is_membership_active_on(youtube_channel),
+        'profile_image_url': profile_image_url_on(youtube_channel),
+        'banner_image_url': banner_image_url_on(youtube_channel),
+        'links': links_on(youtube_channel)
+    }
+
+
+def youtube_channel_from_url(url):
+    page = requests.get(url)
+    try:
+        tree = html.document_fromstring(page.content.decode(encoding='iso-8859-1'))
+        js_text = tree.xpath('//script[contains(., "ytInitialData")]/text()')[0]
+        data = json.loads(js_text[js_text.find('{'):js_text.rfind('}') + 1])
+        return data['header']['c4TabbedHeaderRenderer']
+    except Exception:
+        return None
+
+
 def fetch_channel_depths(channel_ids, pool):
     channel_depths = pool.map(fetch_channel_depth, channel_ids)
     return channel_depths
@@ -56,10 +86,23 @@ def parse_redirect_link(link):
 
 
 def parse_platform(link):
-    return extract(parse_redirect_link(link)).domain
+    domain = extract(parse_redirect_link(link)).domain
+    if domain == 'youtube':
+        return 'YouTube'
+    if domain == 'facebook':
+        return 'Facebook'
+    if domain == 'instagram':
+        return 'Instagram'
+    if domain == 'twitter':
+        return 'Twitter'
+    if domain == 'tiktok':
+        return 'TikTok'
+    if domain == 'sociabuzz':
+        return 'Sociabuzz'
+    return domain
 
 
-def parse_username(link):
+def parse_username(link, platform=None):
     parsed_redirect_link = parse_redirect_link(link)
     if parsed_redirect_link[:1] == '/':
         parsed_redirect_link = parsed_redirect_link[1:]
@@ -69,6 +112,79 @@ def parse_username(link):
     def filter_blank(s): return s != ''
     segments = list(map(map_split, split))
     filtered_segments = list(filter(filter_blank, segments))
+    if platform == 'Sociabuzz' and filtered_segments[-1] == 'tribe':
+        filtered_segments.remove('tribe')
     if len(filtered_segments) > 0:
         return filtered_segments[-1]
     return None
+
+
+def channel_id_on(youtube_channel):
+    if 'channelId' in youtube_channel:
+        return youtube_channel['channelId']
+    return None
+
+
+def channel_title_on(youtube_channel):
+    if 'title' in youtube_channel:
+        return youtube_channel['title']
+    return None
+
+
+def badges_on(youtube_channel):
+    if 'badges' not in youtube_channel:
+        return None
+    def map_badge(badge):
+        if 'metadataBadgeRenderer' in badge and \
+                'icon' in badge['metadataBadgeRenderer'] and \
+                'iconType' in badge['metadataBadgeRenderer']['icon']:
+            return badge['metadataBadgeRenderer']['icon']['iconType']
+        return None
+    items = list(filter(lambda x: x is not None, list(map(map_badge, youtube_channel['badges']))))
+    return '+'.join(items)
+
+
+def is_membership_active_on(youtube_channel):
+    if 'sponsorButton' in youtube_channel:
+        return True
+    return False
+
+
+def profile_image_url_on(youtube_channel):
+    if 'avatar' in youtube_channel and \
+        'thumbnails' in youtube_channel['avatar'] and \
+            len(youtube_channel['avatar']['thumbnails']) > 0:
+        return youtube_channel['avatar']['thumbnails'][-1]['url'].split('=', 1)[0]
+    return None
+
+
+def banner_image_url_on(youtube_channel):
+    if 'banner' in youtube_channel and \
+        'thumbnails' in youtube_channel['banner'] and \
+            len(youtube_channel['banner']['thumbnails']) > 0:
+        return youtube_channel['banner']['thumbnails'][-1]['url'].split('=', 1)[0]
+    return None
+
+
+def links_on(youtube_channel):
+    if 'headerLinks' not in youtube_channel or \
+            'channelHeaderLinksRenderer' not in youtube_channel['headerLinks']:
+        return []
+    header_links_prop = youtube_channel['headerLinks']['channelHeaderLinksRenderer']
+    header_links_raw = []
+    if 'primaryLinks' in header_links_prop:
+        header_links_raw += header_links_prop['primaryLinks']
+    if 'secondaryLinks' in header_links_prop:
+        header_links_raw += header_links_prop['secondaryLinks']
+    def map_header_links(link):
+        url = parse_redirect_link(link['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url'])
+        platform = parse_platform(url)
+        return {
+            'text': link['title']['simpleText'],
+            'url': url,
+            'platform': platform,
+            'username': parse_username(url, platform)
+        }
+    def filter_username(link): return link['username'] is not None
+    links = list(filter(filter_username, list(map(map_header_links, header_links_raw))))
+    return links
