@@ -1,22 +1,48 @@
 from gservices import gspread_service
-import requests
-import os
+from utils import cells_on_row
 from links import remove_handler
 from datetime import datetime
+import requests
+import os
+import csv
 
 
 def fetch_twitch_usernames_cells():
     return gspread_service().spreadsheets().values().get(
         spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="P3:P",
+        range="R3:R",
     ).execute()
 
 
 def fetch_twitch_broadcast_ids_cells():
     return gspread_service().spreadsheets().values().get(
         spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="Q3:Q",
+        range="S3:S",
     ).execute()
+
+
+def twitch_username_cells():
+    response = fetch_twitch_usernames_cells()
+    if 'values' in response:
+        return list(map(cells_on_row, response['values']))
+    return []
+
+
+def rows_twitch_usernames_to_sheet_from(csv_filename):
+    def to_text(username):
+        if username is None or username == '':
+            return username
+        return f'=hyperlink("https://twitch.tv/{username}"; "@{username}")'
+    with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        def map_row(row):
+            return [to_text(row['username_twitch']) if 'username_twitch' in row else '']
+        rows = list(map(map_row, reader))
+        csvfile.close()
+    for i, twitch_username_cell in enumerate(twitch_username_cells()):
+        if twitch_username_cell is not None and rows[i] == '':
+            rows[i] = to_text(remove_handler(twitch_username_cell))
+    return rows
     
 
 def fetch_twitch_usernames():

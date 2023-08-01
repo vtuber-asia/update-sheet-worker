@@ -1,6 +1,9 @@
 from gservices import gspread_service
-import os
 from datetime import datetime
+from utils import cells_on_row
+from links import remove_handler
+import os
+import csv
 
 
 def fetch_tiktok_usernames_cells():
@@ -15,6 +18,30 @@ def fetch_tiktok_usernames():
     def filter_empty(row): return len(row) > 0
     def map_tiktok_username(row): return row[0]
     return list(map(map_tiktok_username, list(filter(filter_empty, values))))
+
+
+def tiktok_username_cells():
+    response = fetch_tiktok_usernames_cells()
+    if 'values' in response:
+        return list(map(cells_on_row, response['values']))
+    return []
+
+
+def rows_tiktok_usernames_to_sheet_from(csv_filename):
+    def to_text(username):
+        if username is None or username == '':
+            return username
+        return f'=hyperlink("https://tiktok.com/@{username}"; "@{username}")'
+    with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        def map_row(row):
+            return [to_text(row['username_tiktok']) if 'username_tiktok' in row else '']
+        rows = list(map(map_row, reader))
+        csvfile.close()
+    for i, tiktok_username_cell in enumerate(tiktok_username_cells()):
+        if tiktok_username_cell is not None and rows[i] == '':
+            rows[i] = to_text(remove_handler(tiktok_username_cell))
+    return rows
 
 
 def find_tiktok_channel(tiktok_channels, tiktok_username):

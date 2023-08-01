@@ -1,6 +1,7 @@
 from lxml import html
 from urllib.parse import urlparse, parse_qs
 from tldextract import extract
+from links import remove_handler
 import logging
 import os.path
 import json
@@ -50,6 +51,10 @@ def youtube_channel_for(username):
     if youtube_channel is None:
         logging.warning(f"Could not find YouTube channel: {username}")
         return None
+    links = links_on(youtube_channel)
+    twitch_links = list(filter(lambda link: link['platform'] == 'Twitch', links))
+    tiktok_links = list(filter(lambda link: link['platform'] == 'TikTok', links))
+    twitter_links = list(filter(lambda link: link['platform'] == 'Twitter', links))
     return {
         'username': username,
         'channel_id': channel_id_on(youtube_channel),
@@ -58,7 +63,10 @@ def youtube_channel_for(username):
         'is_membership_active': is_membership_active_on(youtube_channel),
         'profile_image_url': profile_image_url_on(youtube_channel),
         'banner_image_url': banner_image_url_on(youtube_channel),
-        'links': links_on(youtube_channel)
+        'links': links,
+        'username_twitch': twitch_links[0]['username'] if len(twitch_links) > 0 else None,
+        'username_tiktok': tiktok_links[0]['username'] if len(tiktok_links) > 0 else None,
+        'username_twitter': twitter_links[0]['username'] if len(twitter_links) > 0 else None,
     }
 
 
@@ -89,6 +97,8 @@ def parse_platform(link):
     domain = extract(parse_redirect_link(link)).domain
     if domain == 'youtube':
         return 'YouTube'
+    if domain == 'twitch':
+        return 'Twitch'
     if domain == 'facebook':
         return 'Facebook'
     if domain == 'instagram':
@@ -102,20 +112,19 @@ def parse_platform(link):
     return domain
 
 
-def parse_username(link, platform=None):
+def parse_username(link):
     parsed_redirect_link = parse_redirect_link(link)
-    if parsed_redirect_link[:1] == '/':
-        parsed_redirect_link = parsed_redirect_link[1:]
-    path = urlparse(parsed_redirect_link).path
-    split = os.path.split(path)
-    def map_split(s): return s.replace('/', '')
-    def filter_blank(s): return s != ''
-    segments = list(map(map_split, split))
-    filtered_segments = list(filter(filter_blank, segments))
-    if platform == 'Sociabuzz' and filtered_segments[-1] == 'tribe':
-        filtered_segments.remove('tribe')
+    filtered_segments = list(
+        filter(lambda s: s != '' and s != extract(parsed_redirect_link).fqdn,
+            list(map(lambda s: s.replace('/', ''), 
+                os.path.split(
+                    urlparse(parsed_redirect_link).path
+                )
+            ))
+        )
+    )
     if len(filtered_segments) > 0:
-        return filtered_segments[-1]
+        return remove_handler(filtered_segments[0])
     return None
 
 
@@ -183,7 +192,7 @@ def links_on(youtube_channel):
             'text': link['title']['simpleText'],
             'url': url,
             'platform': platform,
-            'username': parse_username(url, platform)
+            'username': parse_username(url)
         }
     def filter_username(link): return link['username'] is not None
     links = list(filter(filter_username, list(map(map_header_links, header_links_raw))))

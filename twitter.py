@@ -1,19 +1,46 @@
 from gservices import gspread_service
+from utils import cells_on_row
+from links import remove_handler
 import requests
 import os
+import csv
 from datetime import datetime
 
 
 def fetch_twitter_usernames_cells():
     return gspread_service().spreadsheets().values().get(
         spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="AB3:AB"
+        range="AD3:AD"
     ).execute()
 
 
 def fetch_twitter_usernames():
     values = fetch_twitter_usernames_cells()["values"]
     return [value[0] for value in values if len(value) > 0]
+
+
+def twitter_username_cells():
+    response = fetch_twitter_usernames_cells()
+    if 'values' in response:
+        return list(map(cells_on_row, response['values']))
+    return []
+
+
+def rows_twitter_usernames_to_sheet_from(csv_filename):
+    def to_text(username):
+        if username is None or username == '':
+            return username
+        return f'=hyperlink("https://twitter.com/{username}"; "@{username}")'
+    with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        def map_row(row):
+            return [to_text(row['username_twitter']) if 'username_twitter' in row else '']
+        rows = list(map(map_row, reader))
+        csvfile.close()
+    for i, twitter_username_cell in enumerate(twitter_username_cells()):
+        if twitter_username_cell is not None and rows[i] == '':
+            rows[i] = to_text(remove_handler(twitter_username_cell))
+    return rows
 
 
 def find_twitter_user(users, twitter_username):

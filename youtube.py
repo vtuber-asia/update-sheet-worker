@@ -1,7 +1,10 @@
 from gservices import gspread_service, youtube_service
 from datetime import datetime
 from youtube_ext import youtube_channel_for
-from utils import split
+from utils import split, cells_on_row
+from twitter import rows_twitter_usernames_to_sheet_from
+from twitch import rows_twitch_usernames_to_sheet_from
+from tiktok import rows_tiktok_usernames_to_sheet_from
 import logging
 import os
 import csv
@@ -20,8 +23,7 @@ def youtube_channel_username_cells():
         range="G3:G"
     ).execute()
     if 'values' in response:
-        def map_channel_username(row): return row[0] if len(row) > 0 else None
-        return list(map(map_channel_username, response['values']))
+        return list(map(cells_on_row, response['values']))
     return []
 
 
@@ -88,7 +90,10 @@ def update_youtube_channels():
         'badges',
         'is_membership_active', 
         'profile_image_url', 
-        'banner_image_url'
+        'banner_image_url',
+        'username_twitch',
+        'username_tiktok',
+        'username_twitter',
     ]
     with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
         w = csv.DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
@@ -151,6 +156,18 @@ def update_youtube_channels():
             'values': rows_youtube_channels_to_sheet_from(csv_filename),
         },
         {
+            'range': "R3:R",
+            'values': rows_twitch_usernames_to_sheet_from(csv_filename),
+        },
+        {
+            'range': "W3:W",
+            'values': rows_tiktok_usernames_to_sheet_from(csv_filename),
+        },
+        {
+            'range': "AD3:AD",
+            'values': rows_twitter_usernames_to_sheet_from(csv_filename),
+        },
+        {
             'range': "YouTube!A3:K",
             'values': rows_youtube_channels_to_sheet_from(f'sorted-{csv_filename}'),
         }
@@ -160,6 +177,7 @@ def update_youtube_channels():
         body={
             'ranges': [
                 "G3:Q",
+                "AD3:AD",
                 "YouTube!A3:K"
             ]
         }
@@ -193,8 +211,8 @@ def rows_youtube_channels_to_sheet_from(csv_filename):
                 row['channel_title'],
                 badges[0] if len(badges) > 0 else '',
                 f'=image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Yellow_Star_with_rounded_edges.svg/42px-Yellow_Star_with_rounded_edges.svg.png"; 4; 24; 24)' if row['is_membership_active'] == 'True' else '',
-                f'=image("{row["profile_image_url"]}"; 4; 80; 80)',
-                f'=image("{row["banner_image_url"]}"; 4; 73; 130)',
+                f'=image("{row["profile_image_url"]}"; 4; 80; 80)' if row['profile_image_url'] is not None else '',
+                f'=image("{row["banner_image_url"]}"; 4; 73; 130)' if row['banner_image_url'] is not None else '',
                 row['videos_count'],
                 row['views_count'],
                 row['subscribers_count'],
