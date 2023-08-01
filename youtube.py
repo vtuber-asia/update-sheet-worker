@@ -155,6 +155,15 @@ def update_youtube_channels():
             'values': rows_youtube_channels_to_sheet_from(f'sorted-{csv_filename}'),
         }
     ]
+    gspread_service().spreadsheets().values().batchClear(
+        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
+        body={
+            'ranges': [
+                "G3:Q",
+                "YouTube!A3:K"
+            ]
+        }
+    ).execute()
     return gspread_service().spreadsheets().values().batchUpdate(
         spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
         body={
