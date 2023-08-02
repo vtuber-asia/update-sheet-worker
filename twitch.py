@@ -40,6 +40,7 @@ class Twitch(ContentPlatform):
             'channel_title',
             'profile_image_url',
             'followers_count',
+            'timestamp',
         ]
         with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
             w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
@@ -55,6 +56,7 @@ class Twitch(ContentPlatform):
                         'channel_title': user['display_name'],
                         'profile_image_url': user['profile_image_url'],
                         'followers_count': 0,
+                        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     })
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:

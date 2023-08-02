@@ -1,124 +1,90 @@
-from gservices import gspread_service
-from datetime import datetime
-from utils import cells_on_row
-from links import remove_handler
+import json
 import os
-import csv
+from csv import DictReader, DictWriter
+from datetime import datetime
+
+from lxml import html
+from requests.exceptions import ChunkedEncodingError
+
+from content_platform import ContentPlatform
+from gservices import gspread_service
 
 
-def fetch_tiktok_usernames_cells():
-    return gspread_service().spreadsheets().values().get(
-        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="U3:U"
-    ).execute()
+class TikTok(ContentPlatform):
 
+    def fetch_username_cells(self) -> list:
+        response = gspread_service().spreadsheets().values().get(
+            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
+            range="U3:U",
+        ).execute()
+        if 'values' in response:
+            return list(map(ContentPlatform.cells_on, response['values']))
+        return []
 
-def fetch_tiktok_usernames():
-    values = fetch_tiktok_usernames_cells()["values"]
-    def filter_empty(row): return len(row) > 0
-    def map_tiktok_username(row): return row[0]
-    return list(map(map_tiktok_username, list(filter(filter_empty, values))))
+    def fetch_user(self, username: str) -> dict | None:
+        username = ContentPlatform.remove_handler_from(username)
+        url = f'https://www.tiktok.com/@{username}'
+        self.logger.info(f"Fetching TikTok channel info for @{username}")
+        try:
+            page = self.session.get(url, allow_redirects=False)
+            if page.status_code != 200:
+                return None
+            tree = html.document_fromstring(page.content.decode(encoding='iso-8859-1'))
+            paths = tree.xpath('//script[@id="SIGI_STATE"]')
+            data = json.loads(paths[0].text)
+            unique_id = data['UserPage']['uniqueId']
+            tiktok_user = {
+                'username': username,
+                'user_id': data['UserModule']['users'][unique_id]['id'],
+                'channel_title': data['UserModule']['users'][unique_id]['nickname'],
+                'is_verified': data['UserModule']['users'][unique_id]['verified'],
+                'profile_image_url': data['UserModule']['users'][unique_id]['avatarLarger'],
+                'followers_count': data['UserModule']['stats'][unique_id]['followerCount'],
+                'following_count': data['UserModule']['stats'][unique_id]['followingCount'],
+                'hearts_count': data['UserModule']['stats'][unique_id]['heartCount'],
+                'videos_count': data['UserModule']['stats'][unique_id]['videoCount'],
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            return tiktok_user
+        except ChunkedEncodingError:
+            return self.fetch_user(username)
+        except Exception as e:
+            self.logger.error(f"Error fetching TikTok channel info for @{username}: {e}")
+            return None
 
-
-def tiktok_username_cells():
-    response = fetch_tiktok_usernames_cells()
-    if 'values' in response:
-        return list(map(cells_on_row, response['values']))
-    return []
-
-
-def rows_tiktok_usernames_to_sheet_from(csv_filename):
-    def to_text(username):
-        if username is None or username == '':
-            return username
-        return f'=hyperlink("https://tiktok.com/@{username}"; "@{username}")'
-    with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        def map_row(row):
-            return [to_text(row['username_tiktok']) if 'username_tiktok' in row else '']
-        rows = list(map(map_row, reader))
-        csvfile.close()
-    for i, tiktok_username_cell in enumerate(tiktok_username_cells()):
-        if tiktok_username_cell is not None and rows[i] == '':
-            rows[i] = to_text(remove_handler(tiktok_username_cell))
-    return rows
-
-
-def find_tiktok_channel(tiktok_channels, tiktok_username):
-    for tiktok_channel in tiktok_channels:
-        if tiktok_channel["username"] == tiktok_username:
-            return tiktok_channel
-    return None
-
-
-def store_tiktok_channels(tiktok_channels):
-    tiktok_channels_ranges = fetch_tiktok_usernames_cells()["values"]
-    write_rows = []
-    for tiktok_channel_rows in tiktok_channels_ranges:
-        if len(tiktok_channel_rows) > 0:
-            tiktok_channel = find_tiktok_channel(tiktok_channels, tiktok_channel_rows[0])
-            if tiktok_channel is not None:
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                write_rows.append([
-                    tiktok_channel['id'],
-                    cell_thumbnail(tiktok_channel),
-                    cell_followers_count(tiktok_channel),
-                    cell_hearts_count(tiktok_channel),
-                    cell_videos_count(tiktok_channel),
-                    timestamp
-                ])
-            else:
-                write_rows.append([
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
-                ])
-        else:
-            write_rows.append([
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
-            ])
-    body = {
-        "values": write_rows
-    }
-    return gspread_service().spreadsheets().values().update(
-        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="V3:AA",
-        valueInputOption="USER_ENTERED",
-        body=body,
-    ).execute()
-
-
-def cell_thumbnail(tiktok_channel):
-    if 'thumbnail' in tiktok_channel and tiktok_channel['thumbnail'] is not None:
-        return f'=image("{tiktok_channel["thumbnail"]}"; 4; 80; 80)'
-    else:
-        return ""
-    
-
-def cell_followers_count(tiktok_channel):
-    if 'followers_count' in tiktok_channel and tiktok_channel['followers_count'] is not None:
-        return tiktok_channel['followers_count']
-    else:
-        return 0
-    
-
-def cell_hearts_count(tiktok_channel):
-    if 'hearts_count' in tiktok_channel and tiktok_channel['hearts_count'] is not None:
-        return tiktok_channel['hearts_count']
-    else:
-        return 0
-    
-
-def cell_videos_count(tiktok_channel):
-    if 'videos_count' in tiktok_channel and tiktok_channel['videos_count'] is not None:
-        return tiktok_channel['videos_count']
-    else:
-        return 0
+    def create_csv(self) -> str:
+        csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_tiktok.csv'
+        fields = [
+            'username',
+            'user_id',
+            'channel_title',
+            'is_verified',
+            'profile_image_url',
+            'followers_count',
+            'following_count',
+            'hearts_count',
+            'videos_count',
+            'timestamp',
+        ]
+        with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
+            w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
+            w.writeheader()
+            for username in self.fetch_usernames():
+                tiktok_user = self.fetch_user(username)
+                if tiktok_user is not None:
+                    w.writerow(tiktok_user)
+            csvfile.close()
+        with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
+            from_csv_tiktok_users = list(DictReader(csvfile))
+            csvfile.close()
+        with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
+            w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
+            w.writeheader()
+            w.writerows(
+                sorted(list(
+                    filter(lambda x: x is not None,
+                           from_csv_tiktok_users
+                    )
+                ), key=lambda x: int(x['followers_count']), reverse=True)
+            )
+        return csv_filename

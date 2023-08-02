@@ -75,7 +75,8 @@ class YouTube(ContentPlatform):
             w.writeheader()
             for username in self.fetch_usernames():
                 youtube_channel = self.fetch_user(username)
-                w.writerow(youtube_channel)
+                if youtube_channel is not None:
+                    w.writerow(youtube_channel)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
             from_csv_youtube_channels = list(DictReader(csvfile))
