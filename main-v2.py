@@ -3,6 +3,7 @@ from requests import Session
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from youtube import YouTube
+from twitch import Twitch
 import logging
 
 
@@ -15,7 +16,9 @@ if __name__ == "__main__":
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
-    youTube = YouTube(session, logger)
-    csv = youTube.create_csv()
+    # youTube = YouTube(session, logger)
+    # csv = youTube.create_csv()
+    twitch = Twitch(session, logger)
+    csv = twitch.create_csv()
     print(csv)
     

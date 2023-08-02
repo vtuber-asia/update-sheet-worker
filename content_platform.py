@@ -11,15 +11,18 @@ class ContentPlatform:
     def __init__(self, session: Session, logger: Logger):
         self.session = session
         self.logger = logger
-    
-    def fetch_user(self, username: str) -> dict|None:
+
+    def fetch_user(self, username: str) -> dict | None:
         pass
 
     def fetch_username_cells(self) -> list:
         pass
-    
+
     def fetch_usernames(self) -> list:
-        pass
+        return list(
+            filter(lambda username: username is not None,
+                   self.fetch_username_cells())
+        )
 
     def create_csv(self) -> str:
         pass
@@ -51,15 +54,15 @@ class ContentPlatform:
         return url
 
     @staticmethod
-    def parse_username_from(url) -> str|None:
+    def parse_username_from(url) -> str | None:
         filtered_segments = list(
             filter(lambda s: s != '' and s != extract(url).fqdn,
-                list(map(lambda s: s.replace('/', ''), 
-                    os.path.split(
-                        urlparse(url).path
-                    )
-                ))
-            )
+                   list(map(lambda s: s.replace('/', ''),
+                            os.path.split(
+                       urlparse(url).path
+                   )
+                   ))
+                   )
         )
         if len(filtered_segments) > 0:
             return ContentPlatform.remove_handler_from(filtered_segments[0])
@@ -73,5 +76,5 @@ class ContentPlatform:
             return username
 
     @staticmethod
-    def cells_on(row): 
+    def cells_on(row):
         return row[0] if len(row) > 0 else None

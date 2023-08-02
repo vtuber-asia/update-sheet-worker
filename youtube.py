@@ -21,12 +21,7 @@ class YouTube(ContentPlatform):
             return list(map(ContentPlatform.cells_on, response['values']))
         return []
 
-    def fetch_usernames(self) -> list:
-        return list(
-            filter(lambda username: username is not None, self.fetch_username_cells())
-        )
-
-    def fetch_user(self, username: str) -> dict|None:
+    def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)
         url = f'https://www.youtube.com/@{username}'
         self.logger.info(f'Fetching YouTube channel info for @{username} ...')
@@ -35,9 +30,12 @@ class YouTube(ContentPlatform):
             self.logger.warning(f'Could not find YouTube channel: @{username}')
             return None
         links = YouTube.links_on(youtube_channel)
-        twitch_links = list(filter(lambda link: link['platform'] == 'Twitch', links))
-        tiktok_links = list(filter(lambda link: link['platform'] == 'TikTok', links))
-        twitter_links = list(filter(lambda link: link['platform'] == 'Twitter', links))
+        twitch_links = list(
+            filter(lambda link: link['platform'] == 'Twitch', links))
+        tiktok_links = list(
+            filter(lambda link: link['platform'] == 'TikTok', links))
+        twitter_links = list(
+            filter(lambda link: link['platform'] == 'Twitter', links))
         return {
             'username': username,
             'channel_id': YouTube.channel_id_on(youtube_channel),
@@ -57,15 +55,15 @@ class YouTube(ContentPlatform):
     def create_csv(self) -> str:
         csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube_channels.csv'
         fields = [
-            'username', 
-            'channel_id', 
-            'channel_title', 
+            'username',
+            'channel_id',
+            'channel_title',
             'badges',
-            'is_membership_active', 
-            'profile_image_url', 
+            'is_membership_active',
+            'profile_image_url',
             'banner_image_url',
-            'videos_count', 
-            'views_count', 
+            'videos_count',
+            'views_count',
             'subscribers_count',
             'username_twitch',
             'username_tiktok',
@@ -75,32 +73,38 @@ class YouTube(ContentPlatform):
         with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
             w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
             w.writeheader()
-            for username_cell in self.fetch_username_cells():
-                if username_cell is not None:
-                    youtube_channel = self.fetch_user(username_cell)
-                    w.writerow(youtube_channel)
+            for username in self.fetch_usernames():
+                youtube_channel = self.fetch_user(username)
+                w.writerow(youtube_channel)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
             from_csv_youtube_channels = list(DictReader(csvfile))
             youtube_channel_ids = list(
                 map(lambda row: row['channel_id'], list(
-                        filter(lambda row: row is not None, from_csv_youtube_channels)
+                    filter(lambda row: row is not None,
+                           from_csv_youtube_channels))
                     )
-                )
             )
             csvfile.close()
         youtube_channel_ids_chunks = split(youtube_channel_ids, 50)
         for youtube_channel_ids_chunk in youtube_channel_ids_chunks:
-            from_api_youtube_channels = YouTube.from_api_fetch_channels_for(youtube_channel_ids_chunk)
+            from_api_youtube_channels = YouTube.from_api_fetch_channels_for(
+                youtube_channel_ids_chunk)
             for from_api_youtube_channel in from_api_youtube_channels['items']:
                 for from_csv_youtube_channel in from_csv_youtube_channels:
                     if from_api_youtube_channel['id'] == from_csv_youtube_channel['channel_id']:
-                        from_csv_youtube_channel['profile_image_url'] = YouTube.from_api_thumbnail(from_api_youtube_channel)
-                        from_csv_youtube_channel['banner_image_url'] = YouTube.from_api_banner(from_api_youtube_channel)
-                        from_csv_youtube_channel['videos_count'] = YouTube.from_api_videos_count(from_api_youtube_channel)
-                        from_csv_youtube_channel['views_count'] = YouTube.from_api_views_count(from_api_youtube_channel)
-                        from_csv_youtube_channel['subscribers_count'] = YouTube.from_api_subscribers_count(from_api_youtube_channel)
-                        from_csv_youtube_channel['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        from_csv_youtube_channel['profile_image_url'] = YouTube.from_api_thumbnail(
+                            from_api_youtube_channel)
+                        from_csv_youtube_channel['banner_image_url'] = YouTube.from_api_banner(
+                            from_api_youtube_channel)
+                        from_csv_youtube_channel['videos_count'] = YouTube.from_api_videos_count(
+                            from_api_youtube_channel)
+                        from_csv_youtube_channel['views_count'] = YouTube.from_api_views_count(
+                            from_api_youtube_channel)
+                        from_csv_youtube_channel['subscribers_count'] = YouTube.from_api_subscribers_count(
+                            from_api_youtube_channel)
+                        from_csv_youtube_channel['timestamp'] = datetime.now().strftime(
+                            "%Y-%m-%d %H:%M:%S")
                         break
         with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
             w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
@@ -108,7 +112,7 @@ class YouTube(ContentPlatform):
             w.writerows(
                 sorted(list(
                     filter(
-                        lambda row: row is not None and 'subscribers_count' in row, 
+                        lambda row: row is not None and 'subscribers_count' in row,
                         from_csv_youtube_channels
                     )
                 ), key=lambda row: int(row['subscribers_count']), reverse=True)
@@ -116,12 +120,15 @@ class YouTube(ContentPlatform):
             csvfile.close()
         return csv_filename
 
-    def __youtube_channel_from_url(self, url) -> dict|None:
+    def __youtube_channel_from_url(self, url) -> dict | None:
         page = self.session.get(url)
         try:
-            tree = html.document_fromstring(page.content.decode(encoding='iso-8859-1'))
-            js_text = tree.xpath('//script[contains(., "ytInitialData")]/text()')[0]
-            data = json.loads(js_text[js_text.find('{'):js_text.rfind('}') + 1])
+            tree = html.document_fromstring(
+                page.content.decode(encoding='iso-8859-1'))
+            js_text = tree.xpath(
+                '//script[contains(., "ytInitialData")]/text()')[0]
+            data = json.loads(
+                js_text[js_text.find('{'):js_text.rfind('}') + 1])
             return data['header']['c4TabbedHeaderRenderer']
         except Exception:
             return None
@@ -134,38 +141,40 @@ class YouTube(ContentPlatform):
         ).execute()
 
     @staticmethod
-    def channel_id_on(youtube_channel) -> str|None:
+    def channel_id_on(youtube_channel) -> str | None:
         if 'channelId' in youtube_channel:
             return youtube_channel['channelId']
         return None
 
     @staticmethod
-    def channel_title_on(youtube_channel) -> str|None:
+    def channel_title_on(youtube_channel) -> str | None:
         if 'title' in youtube_channel:
             return youtube_channel['title']
         return None
 
     @staticmethod
-    def badges_on(youtube_channel) -> str|None:
+    def badges_on(youtube_channel) -> str | None:
         if 'badges' not in youtube_channel:
             return None
+
         def map_badge(badge):
             if 'metadataBadgeRenderer' in badge and \
                     'icon' in badge['metadataBadgeRenderer'] and \
                     'iconType' in badge['metadataBadgeRenderer']['icon']:
                 return badge['metadataBadgeRenderer']['icon']['iconType']
             return None
-        items = list(filter(lambda x: x is not None, list(map(map_badge, youtube_channel['badges']))))
+        items = list(filter(lambda x: x is not None, list(
+            map(map_badge, youtube_channel['badges']))))
         return '+'.join(items)
 
     @staticmethod
-    def is_membership_active_on(youtube_channel) -> str|None:
+    def is_membership_active_on(youtube_channel) -> str | None:
         if 'sponsorButton' in youtube_channel:
             return True
         return False
 
     @staticmethod
-    def profile_image_url_on(youtube_channel) -> str|None:
+    def profile_image_url_on(youtube_channel) -> str | None:
         if 'avatar' in youtube_channel and \
             'thumbnails' in youtube_channel['avatar'] and \
                 len(youtube_channel['avatar']['thumbnails']) > 0:
@@ -173,7 +182,7 @@ class YouTube(ContentPlatform):
         return None
 
     @staticmethod
-    def banner_image_url_on(youtube_channel) -> str|None:
+    def banner_image_url_on(youtube_channel) -> str | None:
         if 'banner' in youtube_channel and \
             'thumbnails' in youtube_channel['banner'] and \
                 len(youtube_channel['banner']['thumbnails']) > 0:
@@ -191,8 +200,10 @@ class YouTube(ContentPlatform):
             header_links_raw += header_links_prop['primaryLinks']
         if 'secondaryLinks' in header_links_prop:
             header_links_raw += header_links_prop['secondaryLinks']
+
         def map_header_links(link):
-            url = ContentPlatform.parse_redirect_link_from(link['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url'])
+            url = ContentPlatform.parse_redirect_link_from(
+                link['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url'])
             platform = ContentPlatform.parse_platform_from(url)
             return {
                 'text': link['title']['simpleText'],
@@ -200,8 +211,10 @@ class YouTube(ContentPlatform):
                 'platform': platform,
                 'username': ContentPlatform.parse_username_from(url)
             }
+
         def filter_username(link): return link['username'] is not None
-        links = list(filter(filter_username, list(map(map_header_links, header_links_raw))))
+        links = list(filter(filter_username, list(
+            map(map_header_links, header_links_raw))))
         return links
 
     @staticmethod
@@ -213,7 +226,7 @@ class YouTube(ContentPlatform):
             return from_api_youtube_channel['snippet']['thumbnails']['default']['url']
         else:
             return None
-        
+
     @staticmethod
     def from_api_banner(from_api_youtube_channel):
         if 'brandingSettings' in from_api_youtube_channel \
@@ -222,7 +235,7 @@ class YouTube(ContentPlatform):
             return from_api_youtube_channel['brandingSettings']['image']['bannerExternalUrl']
         else:
             return None
-        
+
     @staticmethod
     def from_api_videos_count(from_api_youtube_channel):
         if 'statistics' in from_api_youtube_channel \
@@ -230,7 +243,7 @@ class YouTube(ContentPlatform):
             return from_api_youtube_channel['statistics']['videoCount']
         else:
             return 0
-        
+
     @staticmethod
     def from_api_views_count(from_api_youtube_channel):
         if 'statistics' in from_api_youtube_channel \
