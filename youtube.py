@@ -1,332 +1,248 @@
-from gservices import gspread_service, youtube_service
-from datetime import datetime
-from youtube_ext import youtube_channel_for
-from utils import split, cells_on_row
-from twitter import rows_twitter_usernames_to_sheet_from
-from twitch import rows_twitch_usernames_to_sheet_from
-from tiktok import rows_tiktok_usernames_to_sheet_from
-import logging
+import json
 import os
-import csv
+from csv import DictReader, DictWriter
+from datetime import datetime
+
+from lxml import html
+
+from content_platform import ContentPlatform
+from gservices import gspread_service, youtube_service
+from utils import split
 
 
-def fetch_channel_ids_cells():
-    return gspread_service().spreadsheets().values().get(
-        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="H3:H"
-    ).execute()
+class YouTube(ContentPlatform):
 
+    def fetch_username_cells(self) -> list:
+        response = gspread_service().spreadsheets().values().get(
+            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
+            range="G3:G"
+        ).execute()
+        if 'values' in response:
+            return list(map(ContentPlatform.cells_on, response['values']))
+        return []
 
-def youtube_channel_username_cells():
-    response = gspread_service().spreadsheets().values().get(
-        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="G3:G"
-    ).execute()
-    if 'values' in response:
-        return list(map(cells_on_row, response['values']))
-    return []
+    def fetch_usernames(self) -> list:
+        return list(
+            filter(lambda username: username is not None, self.fetch_username_cells())
+        )
 
+    def fetch_user(self, username: str) -> dict|None:
+        username = ContentPlatform.remove_handler_from(username)
+        url = f'https://www.youtube.com/@{username}'
+        self.logger.info(f'Fetching YouTube channel info for @{username} ...')
+        youtube_channel = self.__youtube_channel_from_url(url)
+        if youtube_channel is None:
+            self.logger.warning(f'Could not find YouTube channel: @{username}')
+            return None
+        links = YouTube.links_on(youtube_channel)
+        twitch_links = list(filter(lambda link: link['platform'] == 'Twitch', links))
+        tiktok_links = list(filter(lambda link: link['platform'] == 'TikTok', links))
+        twitter_links = list(filter(lambda link: link['platform'] == 'Twitter', links))
+        return {
+            'username': username,
+            'channel_id': YouTube.channel_id_on(youtube_channel),
+            'channel_title': YouTube.channel_title_on(youtube_channel),
+            'badges': YouTube.badges_on(youtube_channel),
+            'is_membership_active': YouTube.is_membership_active_on(youtube_channel),
+            'profile_image_url': YouTube.profile_image_url_on(youtube_channel),
+            'banner_image_url': YouTube.banner_image_url_on(youtube_channel),
+            'videos_count': 0,
+            'views_count': 0,
+            'subscribers_count': 0,
+            'username_twitch': twitch_links[0]['username'] if len(twitch_links) > 0 else None,
+            'username_tiktok': tiktok_links[0]['username'] if len(tiktok_links) > 0 else None,
+            'username_twitter': twitter_links[0]['username'] if len(twitter_links) > 0 else None,
+        }
 
-def fetch_channel_ids():
-    values = fetch_channel_ids_cells()["values"]
-    def map_channel_id(row): return row[0]
-    return list(map(map_channel_id, values))
-
-
-def fetch_channels(channel_ids):
-    return youtube_service().channels().list(
-        part="snippet,statistics,brandingSettings",
-        id=",".join(channel_ids)
-    ).execute()
-
-
-def store_channels(channels):
-    channel_ids_ranges = fetch_channel_ids_cells()["values"]
-    write_rows = []
-    for channel_id_rows in channel_ids_ranges:
-        channel = find_channel(channels, channel_id_rows[0])
-        if channel is not None:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            write_rows.append([
-                cell_customUrl(channel),
-                channel_id_rows[0],
-                cell_title(channel),
-                cell_thumbnail(channel),
-                cell_banner(channel),
-                cell_videos_count(channel),
-                cell_views_count(channel),
-                cell_subscribers_count(channel),
-                timestamp
-            ])
-        else:
-            write_rows.append([
-                "",
-                channel_id_rows[0],
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                timestamp
-            ])
-    body = {
-        "values": write_rows
-    }
-    return gspread_service().spreadsheets().values().update(
-        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        range="G3:O",
-        valueInputOption="USER_ENTERED",
-        body=body,
-    ).execute()
-
-
-def update_youtube_channels():
-    csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube_channels.csv'
-    fields = [
-        'username', 
-        'channel_id', 
-        'channel_title', 
-        'badges',
-        'is_membership_active', 
-        'profile_image_url', 
-        'banner_image_url',
-        'username_twitch',
-        'username_tiktok',
-        'username_twitter',
-    ]
-    with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
-        w = csv.DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
-        w.writeheader()
-        for username_cell in youtube_channel_username_cells():
-            if username_cell is not None:
-                youtube_channel = youtube_channel_for(username_cell)
-                w.writerow(youtube_channel)
-            else:
-                w.writerow({})
-        csvfile.close()
-    with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
-        from_csv_youtube_channels = list(csv.DictReader(csvfile))
-        youtube_channel_ids = list(
-            map(lambda row: row['channel_id'], list(
-                    filter(lambda row: row is not None, from_csv_youtube_channels)
+    def create_csv(self) -> str:
+        csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube_channels.csv'
+        fields = [
+            'username', 
+            'channel_id', 
+            'channel_title', 
+            'badges',
+            'is_membership_active', 
+            'profile_image_url', 
+            'banner_image_url',
+            'videos_count', 
+            'views_count', 
+            'subscribers_count',
+            'username_twitch',
+            'username_tiktok',
+            'username_twitter',
+            'timestamp'
+        ]
+        with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
+            w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
+            w.writeheader()
+            for username_cell in self.fetch_username_cells():
+                if username_cell is not None:
+                    youtube_channel = self.fetch_user(username_cell)
+                    w.writerow(youtube_channel)
+            csvfile.close()
+        with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
+            from_csv_youtube_channels = list(DictReader(csvfile))
+            youtube_channel_ids = list(
+                map(lambda row: row['channel_id'], list(
+                        filter(lambda row: row is not None, from_csv_youtube_channels)
+                    )
                 )
             )
-        )
-        csvfile.close()
-    youtube_channel_ids_chunks = split(youtube_channel_ids, 50)
-    for youtube_channel_ids_chunk in youtube_channel_ids_chunks:
-        from_api_youtube_channels = fetch_channels(youtube_channel_ids_chunk)
-        for from_api_youtube_channel in from_api_youtube_channels['items']:
-            for from_csv_youtube_channel in from_csv_youtube_channels:
-                if from_api_youtube_channel['id'] == from_csv_youtube_channel['channel_id']:
-                    from_csv_youtube_channel['profile_image_url'] = from_api_thumbnail(from_api_youtube_channel)
-                    from_csv_youtube_channel['banner_image_url'] = from_api_banner(from_api_youtube_channel)
-                    from_csv_youtube_channel['videos_count'] = from_api_videos_count(from_api_youtube_channel)
-                    from_csv_youtube_channel['views_count'] = from_api_views_count(from_api_youtube_channel)
-                    from_csv_youtube_channel['subscribers_count'] = from_api_subscribers_count(from_api_youtube_channel)
-                    from_csv_youtube_channel['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    break
-    fields.extend([
-        'videos_count', 
-        'views_count', 
-        'subscribers_count',
-        'timestamp'
-    ])
-    with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
-        w = csv.DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
-        w.writeheader()
-        w.writerows(from_csv_youtube_channels)
-        csvfile.close()
-    with open(f'sorted-{csv_filename}', 'w', newline='', encoding='iso-8859-1') as csvfile:
-        w = csv.DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
-        w.writeheader()
-        w.writerows(
-            sorted(list(
-                filter(
-                    lambda row: row is not None and 'subscribers_count' in row, 
-                    from_csv_youtube_channels
-                )
-            ), key=lambda row: int(row['subscribers_count']), reverse=True)
-        )
-        csvfile.close()
-    data = [
-        {
-            'range': "G3:Q",
-            'values': rows_youtube_channels_to_sheet_from(csv_filename),
-        },
-        {
-            'range': "R3:R",
-            'values': rows_twitch_usernames_to_sheet_from(csv_filename),
-        },
-        {
-            'range': "W3:W",
-            'values': rows_tiktok_usernames_to_sheet_from(csv_filename),
-        },
-        {
-            'range': "AD3:AD",
-            'values': rows_twitter_usernames_to_sheet_from(csv_filename),
-        },
-        {
-            'range': "YouTube!A3:K",
-            'values': rows_youtube_channels_to_sheet_from(f'sorted-{csv_filename}'),
-        }
-    ]
-    gspread_service().spreadsheets().values().batchClear(
-        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        body={
-            'ranges': [
-                "G3:Q",
-                "AD3:AD",
-                "YouTube!A3:K"
-            ]
-        }
-    ).execute()
-    return gspread_service().spreadsheets().values().batchUpdate(
-        spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-        body={
-            'data': data,
-            'valueInputOption': 'USER_ENTERED'
-        },
-    ).execute()
+            csvfile.close()
+        youtube_channel_ids_chunks = split(youtube_channel_ids, 50)
+        for youtube_channel_ids_chunk in youtube_channel_ids_chunks:
+            from_api_youtube_channels = YouTube.from_api_fetch_channels_for(youtube_channel_ids_chunk)
+            for from_api_youtube_channel in from_api_youtube_channels['items']:
+                for from_csv_youtube_channel in from_csv_youtube_channels:
+                    if from_api_youtube_channel['id'] == from_csv_youtube_channel['channel_id']:
+                        from_csv_youtube_channel['profile_image_url'] = YouTube.from_api_thumbnail(from_api_youtube_channel)
+                        from_csv_youtube_channel['banner_image_url'] = YouTube.from_api_banner(from_api_youtube_channel)
+                        from_csv_youtube_channel['videos_count'] = YouTube.from_api_videos_count(from_api_youtube_channel)
+                        from_csv_youtube_channel['views_count'] = YouTube.from_api_views_count(from_api_youtube_channel)
+                        from_csv_youtube_channel['subscribers_count'] = YouTube.from_api_subscribers_count(from_api_youtube_channel)
+                        from_csv_youtube_channel['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        break
+        with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
+            w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
+            w.writeheader()
+            w.writerows(
+                sorted(list(
+                    filter(
+                        lambda row: row is not None and 'subscribers_count' in row, 
+                        from_csv_youtube_channels
+                    )
+                ), key=lambda row: int(row['subscribers_count']), reverse=True)
+            )
+            csvfile.close()
+        return csv_filename
 
+    def __youtube_channel_from_url(self, url) -> dict|None:
+        page = self.session.get(url)
+        try:
+            tree = html.document_fromstring(page.content.decode(encoding='iso-8859-1'))
+            js_text = tree.xpath('//script[contains(., "ytInitialData")]/text()')[0]
+            data = json.loads(js_text[js_text.find('{'):js_text.rfind('}') + 1])
+            return data['header']['c4TabbedHeaderRenderer']
+        except Exception:
+            return None
 
-def rows_youtube_channels_to_sheet_from(csv_filename):
-    def to_text(badge):
-        if badge == '':
-            return ''
-        if badge == 'OFFICIAL_ARTIST_BADGE':
-            return f'=image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Bootstrap_music-note.svg/240px-Bootstrap_music-note.svg.png"; 4; 24; 24)'
-        if badge == 'CHECK_CIRCLE_THICK':
-            return f'=image("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/YT_Official_Verified_Checkmark_Circle.svg/52px-YT_Official_Verified_Checkmark_Circle.svg.png"; 4; 24; 24)'
-        logging.warning(f"Unknown YouTube badge: {badge}")
-        return '❓'
-    with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        def map_row(row):
-            badges = list(map(to_text, row['badges'].split('+')))
-            return [
-                f'=hyperlink("https://www.youtube.com/{row["username"]}"; "{row["username"]}")',
-                row['channel_id'],
-                row['channel_title'],
-                badges[0] if len(badges) > 0 else '',
-                f'=image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Yellow_Star_with_rounded_edges.svg/42px-Yellow_Star_with_rounded_edges.svg.png"; 4; 24; 24)' if row['is_membership_active'] == 'True' else '',
-                f'=image("{row["profile_image_url"]}"; 4; 80; 80)' if row['profile_image_url'] is not None else '',
-                f'=image("{row["banner_image_url"]}"; 4; 73; 130)' if row['banner_image_url'] is not None else '',
-                row['videos_count'],
-                row['views_count'],
-                row['subscribers_count'],
-                row['timestamp'],
-            ]
-        rows = list(map(map_row, reader))
-        csvfile.close()
-    return rows
+    @staticmethod
+    def from_api_fetch_channels_for(channel_ids):
+        return youtube_service().channels().list(
+            part="snippet,statistics,brandingSettings",
+            id=",".join(channel_ids)
+        ).execute()
 
-
-def find_channel(channels, channel_id):
-    for channel in channels:
-        if channel["id"] == channel_id:
-            return channel
-    return None
-
-
-def cell_customUrl(channel):
-    if 'snippet' in channel \
-            and 'customUrl' in channel['snippet']:
-        return f'=hyperlink("https://www.youtube.com/{channel["snippet"]["customUrl"]}"; "{channel["snippet"]["customUrl"]}")'
-    else:
-        return ""
-
-
-def cell_title(channel):
-    if 'snippet' in channel \
-            and 'title' in channel['snippet']:
-        return channel['snippet']['title']
-    else:
-        return ""
-
-
-def cell_thumbnail(channel):
-    if 'snippet' in channel \
-            and 'thumbnails' in channel['snippet'] \
-            and 'default' in channel['snippet']['thumbnails'] \
-            and 'url' in channel['snippet']['thumbnails']['default']:
-        return f'=IMAGE("{channel["snippet"]["thumbnails"]["default"]["url"]}"; 4; 80; 80)'
-    else:
-        return ""
-
-
-def cell_banner(channel):
-    if 'brandingSettings' in channel \
-            and 'image' in channel['brandingSettings'] \
-            and 'bannerExternalUrl' in channel['brandingSettings']['image']:
-        return f'=IMAGE("{channel["brandingSettings"]["image"]["bannerExternalUrl"]}"; 4; 73; 130)'
-    else:
-        return ""
-
-
-def cell_videos_count(channel):
-    if 'statistics' in channel \
-            and 'videoCount' in channel['statistics']:
-        return channel['statistics']['videoCount']
-    else:
-        return ""
-
-
-def cell_views_count(channel):
-    if 'statistics' in channel \
-            and 'viewCount' in channel['statistics']:
-        return channel['statistics']['viewCount']
-    else:
-        return ""
-
-
-def cell_subscribers_count(channel):
-    if 'statistics' in channel \
-            and 'subscriberCount' in channel['statistics']:
-        return channel['statistics']['subscriberCount']
-    else:
-        return ""
-
-
-def from_api_thumbnail(from_api_youtube_channel):
-    if 'snippet' in from_api_youtube_channel \
-            and 'thumbnails' in from_api_youtube_channel['snippet'] \
-            and 'default' in from_api_youtube_channel['snippet']['thumbnails'] \
-            and 'url' in from_api_youtube_channel['snippet']['thumbnails']['default']:
-        return from_api_youtube_channel['snippet']['thumbnails']['default']['url']
-    else:
+    @staticmethod
+    def channel_id_on(youtube_channel) -> str|None:
+        if 'channelId' in youtube_channel:
+            return youtube_channel['channelId']
         return None
-    
 
-def from_api_banner(from_api_youtube_channel):
-    if 'brandingSettings' in from_api_youtube_channel \
-            and 'image' in from_api_youtube_channel['brandingSettings'] \
-            and 'bannerExternalUrl' in from_api_youtube_channel['brandingSettings']['image']:
-        return from_api_youtube_channel['brandingSettings']['image']['bannerExternalUrl']
-    else:
+    @staticmethod
+    def channel_title_on(youtube_channel) -> str|None:
+        if 'title' in youtube_channel:
+            return youtube_channel['title']
         return None
-    
 
-def from_api_videos_count(from_api_youtube_channel):
-    if 'statistics' in from_api_youtube_channel \
-            and 'videoCount' in from_api_youtube_channel['statistics']:
-        return from_api_youtube_channel['statistics']['videoCount']
-    else:
-        return None
-    
+    @staticmethod
+    def badges_on(youtube_channel) -> str|None:
+        if 'badges' not in youtube_channel:
+            return None
+        def map_badge(badge):
+            if 'metadataBadgeRenderer' in badge and \
+                    'icon' in badge['metadataBadgeRenderer'] and \
+                    'iconType' in badge['metadataBadgeRenderer']['icon']:
+                return badge['metadataBadgeRenderer']['icon']['iconType']
+            return None
+        items = list(filter(lambda x: x is not None, list(map(map_badge, youtube_channel['badges']))))
+        return '+'.join(items)
 
-def from_api_views_count(from_api_youtube_channel):
-    if 'statistics' in from_api_youtube_channel \
-            and 'viewCount' in from_api_youtube_channel['statistics']:
-        return from_api_youtube_channel['statistics']['viewCount']
-    else:
-        return None
-    
+    @staticmethod
+    def is_membership_active_on(youtube_channel) -> str|None:
+        if 'sponsorButton' in youtube_channel:
+            return True
+        return False
 
-def from_api_subscribers_count(from_api_youtube_channel):
-    if 'statistics' in from_api_youtube_channel \
-            and 'subscriberCount' in from_api_youtube_channel['statistics']:
-        return from_api_youtube_channel['statistics']['subscriberCount']
-    else:
+    @staticmethod
+    def profile_image_url_on(youtube_channel) -> str|None:
+        if 'avatar' in youtube_channel and \
+            'thumbnails' in youtube_channel['avatar'] and \
+                len(youtube_channel['avatar']['thumbnails']) > 0:
+            return youtube_channel['avatar']['thumbnails'][-1]['url'].split('=', 1)[0]
         return None
+
+    @staticmethod
+    def banner_image_url_on(youtube_channel) -> str|None:
+        if 'banner' in youtube_channel and \
+            'thumbnails' in youtube_channel['banner'] and \
+                len(youtube_channel['banner']['thumbnails']) > 0:
+            return youtube_channel['banner']['thumbnails'][-1]['url'].split('=', 1)[0]
+        return None
+
+    @staticmethod
+    def links_on(youtube_channel) -> list:
+        if 'headerLinks' not in youtube_channel or \
+                'channelHeaderLinksRenderer' not in youtube_channel['headerLinks']:
+            return []
+        header_links_prop = youtube_channel['headerLinks']['channelHeaderLinksRenderer']
+        header_links_raw = []
+        if 'primaryLinks' in header_links_prop:
+            header_links_raw += header_links_prop['primaryLinks']
+        if 'secondaryLinks' in header_links_prop:
+            header_links_raw += header_links_prop['secondaryLinks']
+        def map_header_links(link):
+            url = ContentPlatform.parse_redirect_link_from(link['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url'])
+            platform = ContentPlatform.parse_platform_from(url)
+            return {
+                'text': link['title']['simpleText'],
+                'url': url,
+                'platform': platform,
+                'username': ContentPlatform.parse_username_from(url)
+            }
+        def filter_username(link): return link['username'] is not None
+        links = list(filter(filter_username, list(map(map_header_links, header_links_raw))))
+        return links
+
+    @staticmethod
+    def from_api_thumbnail(from_api_youtube_channel):
+        if 'snippet' in from_api_youtube_channel \
+                and 'thumbnails' in from_api_youtube_channel['snippet'] \
+                and 'default' in from_api_youtube_channel['snippet']['thumbnails'] \
+                and 'url' in from_api_youtube_channel['snippet']['thumbnails']['default']:
+            return from_api_youtube_channel['snippet']['thumbnails']['default']['url']
+        else:
+            return None
+        
+    @staticmethod
+    def from_api_banner(from_api_youtube_channel):
+        if 'brandingSettings' in from_api_youtube_channel \
+                and 'image' in from_api_youtube_channel['brandingSettings'] \
+                and 'bannerExternalUrl' in from_api_youtube_channel['brandingSettings']['image']:
+            return from_api_youtube_channel['brandingSettings']['image']['bannerExternalUrl']
+        else:
+            return None
+        
+    @staticmethod
+    def from_api_videos_count(from_api_youtube_channel):
+        if 'statistics' in from_api_youtube_channel \
+                and 'videoCount' in from_api_youtube_channel['statistics']:
+            return from_api_youtube_channel['statistics']['videoCount']
+        else:
+            return 0
+        
+    @staticmethod
+    def from_api_views_count(from_api_youtube_channel):
+        if 'statistics' in from_api_youtube_channel \
+                and 'viewCount' in from_api_youtube_channel['statistics']:
+            return from_api_youtube_channel['statistics']['viewCount']
+        else:
+            return 0
+
+    @staticmethod
+    def from_api_subscribers_count(from_api_youtube_channel):
+        if 'statistics' in from_api_youtube_channel \
+                and 'subscriberCount' in from_api_youtube_channel['statistics']:
+            return from_api_youtube_channel['statistics']['subscriberCount']
+        else:
+            return 0
