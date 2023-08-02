@@ -2,8 +2,6 @@ import os
 from csv import DictReader, DictWriter
 from datetime import datetime
 
-import requests
-
 from content_platform import ContentPlatform
 from gservices import gspread_service
 from utils import split
@@ -80,7 +78,7 @@ class Twitch(ContentPlatform):
         return csv_filename
 
     def __fetch_users(self, usernames):
-        return requests.get(
+        return self.session.get(
             'https://api.twitch.tv/helix/users',
             params={
                 'login': usernames

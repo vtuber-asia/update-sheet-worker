@@ -82,9 +82,9 @@ class TikTok(ContentPlatform):
             w.writeheader()
             w.writerows(
                 sorted(list(
-                    filter(lambda x: x is not None,
+                    filter(lambda row: row is not None,
                            from_csv_tiktok_users
                     )
-                ), key=lambda x: int(x['followers_count']), reverse=True)
+                ), key=lambda row: int(row['followers_count']), reverse=True)
             )
         return csv_filename
