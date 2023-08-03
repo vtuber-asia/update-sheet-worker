@@ -19,8 +19,8 @@ class UploadYouTube(Upload):
         cells = []
         for username in usernames:
             if username is not None:
-                rows = list(filter(lambda row: row['username'] == ContentPlatform.remove_handler_from(
-                    username), from_csv_youtube_channels))
+                rows = list(filter(lambda row: row['username'].lower() == ContentPlatform.remove_handler_from(
+                    username).lower(), from_csv_youtube_channels))
                 if len(rows) > 0:
                     cells.append(UploadYouTube.map_to_cell_from(rows[0]))
                 else:
@@ -71,7 +71,7 @@ class UploadYouTube(Upload):
     @staticmethod
     def cell_username_from(row):
         if 'username' in row:
-            return f'=hyperlink("https://youtube.com/{row["username"]}"; "@{row["username"]}")'
+            return f'=hyperlink("https://youtube.com/{row["username"].lower()}"; "@{row["username"].lower()}")'
         return ''
 
     @staticmethod
