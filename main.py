@@ -6,6 +6,7 @@ from youtube import YouTube
 from twitch import Twitch
 from tiktok import TikTok
 from twitter import Twitter
+from upload_youtube import UploadYouTube
 import logging
 
 
@@ -18,12 +19,15 @@ if __name__ == "__main__":
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)
     session.mount('https://', adapter)
-    youTube = YouTube(session, logger)
-    csv = youTube.create_csv()
-    twitch = Twitch(session, logger)
-    csv = twitch.create_csv()
-    tiktok = TikTok(session, logger)
-    csv = tiktok.create_csv()
-    twitter = Twitter(session, logger)
-    csv = twitter.create_csv()
+    # youTube = YouTube(session, logger)
+    # csv_filename = youTube.create_csv()
+    upload_youtube = UploadYouTube(session, logger)
+    response = upload_youtube.upload("20230803102150_youtube.csv")
+    print(response)
+    # twitch = Twitch(session, logger)
+    # csv = twitch.create_csv()
+    # tiktok = TikTok(session, logger)
+    # csv = tiktok.create_csv()
+    # twitter = Twitter(session, logger)
+    # csv = twitter.create_csv()
     

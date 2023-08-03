@@ -53,7 +53,7 @@ class YouTube(ContentPlatform):
         }
 
     def create_csv(self) -> str:
-        csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube_channels.csv'
+        csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube.csv'
         fields = [
             'username',
             'channel_id',
