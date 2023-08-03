@@ -9,6 +9,7 @@ from twitter import Twitter
 from upload_youtube import UploadYouTube
 from upload_link import UploadLink
 from upload_twitch import UploadTwitch
+from upload_tiktok import UploadTikTok
 import logging
 
 
@@ -27,8 +28,10 @@ if __name__ == "__main__":
     # response = upload_youtube.upload("20230803102150_youtube.csv")
     # upload_link = UploadLink(session, logger)
     # response = upload_link.upload("20230803102150_youtube.csv")
-    upload_twitch = UploadTwitch(session, logger)
-    response = upload_twitch.upload("20230802165249_twitch.csv")
+    # upload_twitch = UploadTwitch(session, logger)
+    # response = upload_twitch.upload("20230802165249_twitch.csv")
+    upload_tiktok = UploadTikTok(session, logger)
+    response = upload_tiktok.upload("20230802165427_tiktok.csv")
     print(response)
     # twitch = Twitch(session, logger)
     # csv = twitch.create_csv()
