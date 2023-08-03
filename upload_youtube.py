@@ -8,7 +8,7 @@ class UploadYouTube(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'YouTube Ranking by Subscribers!A3:K',
+            'YouTube Ranking by Subscribers!A3:P',
         ]
 
     def data_from(self, csv_filename) -> list:
@@ -34,7 +34,7 @@ class UploadYouTube(Upload):
             },
             {
                 'range': self.cell_ranges()[0],
-                'values': list(map(UploadYouTube.map_to_cell_from, from_csv_youtube_channels))
+                'values': list(map(UploadYouTube.map_to_cell_with_xlookup_from, from_csv_youtube_channels))
             }
         ]
 
@@ -54,6 +54,19 @@ class UploadYouTube(Upload):
             UploadYouTube.cell_timestamp_from(row),
         ]
 
+    @staticmethod
+    def map_to_cell_with_xlookup_from(row) -> list:
+        cells = UploadYouTube.map_to_cell_from(row)
+        cells.extend(
+            [
+                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$B$3:$B)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$C$3:$C)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$D$3:$D)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$E$3:$E)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$F$3:$F)',
+            ]
+        )
+        return cells
 
     @staticmethod
     def cell_username_from(row):
