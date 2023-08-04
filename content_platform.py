@@ -44,6 +44,8 @@ class ContentPlatform:
             return 'TikTok'
         if domain == 'sociabuzz':
             return 'Sociabuzz'
+        if domain == 'bilibili':
+            return 'Bstation'
         return domain
 
     @staticmethod
@@ -54,17 +56,19 @@ class ContentPlatform:
         return url
 
     @staticmethod
-    def parse_username_from(url) -> str | None:
+    def parse_username_from(url, platform=None) -> str | None:
         filtered_segments = list(
             filter(lambda s: s != '' and s != extract(url).fqdn,
                    list(map(lambda s: s.replace('/', ''),
                             os.path.split(
                        urlparse(url).path
                    )
-                   ))
-                   )
+                ))
+            )
         )
         if len(filtered_segments) > 0:
+            if platform == 'Bstation':
+                return filtered_segments[-1]
             return ContentPlatform.remove_handler_from(filtered_segments[0])
         return None
 
