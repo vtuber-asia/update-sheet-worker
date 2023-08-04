@@ -1,15 +1,18 @@
 import logging
 
+from bilibili import Bilibili
 from setup import setup
 from tiktok import TikTok
 from twitch import Twitch
 from twitter import Twitter
+from upload_bilibili import UploadBilibili
 from upload_link import UploadLink
 from upload_tiktok import UploadTikTok
 from upload_twitch import UploadTwitch
 from upload_twitter import UploadTwitter
 from upload_youtube import UploadYouTube
 from youtube import YouTube
+
 
 if __name__ == "__main__":
     session, logger = setup("id.bungamungil.vtuber-asia-v3.main", logging.INFO)
@@ -35,3 +38,8 @@ if __name__ == "__main__":
     twitter_csv = twitter.create_csv()
     upload_twitter = UploadTwitter(session, logger)
     logger.info(upload_twitter.upload(twitter_csv))
+
+    bilibili = Bilibili(session, logger)
+    bilibili_csv = bilibili.create_csv()
+    upload_bilibili = UploadBilibili(session, logger)
+    logger.info(upload_bilibili.upload(bilibili_csv))
