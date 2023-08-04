@@ -87,4 +87,5 @@ class TikTok(ContentPlatform):
                     )
                 ), key=lambda row: int(row['followers_count']), reverse=True)
             )
+            csvfile.close()
         return csv_filename
