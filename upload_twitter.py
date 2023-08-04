@@ -62,11 +62,11 @@ class UploadTwitter(Upload):
         cells = UploadTwitter.map_to_cell_from(row)
         cells.extend(
             [
-                f'=XLOOKUP("@{row["username"]}";Summary!$AK$3:$AK;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AK$3:$AK;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AK$3:$AK;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AK$3:$AK;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AK$3:$AK;Summary!$F$3:$F)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$B$3:$B)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$C$3:$C)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$D$3:$D)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$E$3:$E)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$F$3:$F)',
             ]
         )
         return cells
