@@ -57,10 +57,11 @@ class Twitter(ContentPlatform):
                 return None
             return {
                 'username': username,
+                'name': Twitter.name_from(json_data),
                 'is_verified': Twitter.has_blue_checkmark_from(json_data),
-                'profile_image': Twitter.profile_image_from(json_data),
-                'banner_image': Twitter.banner_image_from(json_data),
-                'fovorites_count': Twitter.favorites_count_from(json_data),
+                'profile_image_url': Twitter.profile_image_from(json_data),
+                'banner_image_url': Twitter.banner_image_from(json_data),
+                'favorites_count': Twitter.favorites_count_from(json_data),
                 'followers_count': Twitter.followers_count_from(json_data),
                 'following_count': Twitter.following_count_from(json_data),
                 'media_count': Twitter.media_count_from(json_data),
@@ -74,10 +75,11 @@ class Twitter(ContentPlatform):
         csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_twitter.csv'
         fields = [
             'username',
+            'name',
             'is_verified',
-            'profile_image',
-            'banner_image',
-            'fovorites_count',
+            'profile_image_url',
+            'banner_image_url',
+            'favorites_count',
             'followers_count',
             'following_count',
             'media_count',
@@ -117,6 +119,12 @@ class Twitter(ContentPlatform):
             }
         )
         return response.json()
+    
+    @staticmethod
+    def name_from(user):
+        if 'legacy' in user and 'name' in user['legacy']:
+            return user['legacy']['name']
+        return None
 
     @staticmethod
     def has_blue_checkmark_from(user):

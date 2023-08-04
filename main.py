@@ -10,6 +10,7 @@ from upload_youtube import UploadYouTube
 from upload_link import UploadLink
 from upload_twitch import UploadTwitch
 from upload_tiktok import UploadTikTok
+from upload_twitter import UploadTwitter
 import logging
 
 
@@ -32,6 +33,10 @@ if __name__ == "__main__":
     # response = upload_twitch.upload("20230802165249_twitch.csv")
     upload_tiktok = UploadTikTok(session, logger)
     response = upload_tiktok.upload("20230802165427_tiktok.csv")
+    twitter = Twitter(session, logger)
+    csv = twitter.create_csv()
+    upload_twitter = UploadTwitter(session, logger)
+    response = upload_twitter.upload(csv)
     print(response)
     # twitch = Twitch(session, logger)
     # csv = twitch.create_csv()
