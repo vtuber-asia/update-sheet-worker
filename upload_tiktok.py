@@ -1,3 +1,4 @@
+import os
 from csv import DictReader
 
 from content_platform import ContentPlatform
@@ -89,7 +90,7 @@ class UploadTikTok(Upload):
     @staticmethod
     def cell_is_verified_from(row):
         if 'is_verified' in row and row['is_verified'].lower() == 'true':
-            return '✅'
+            return f'=image("{os.getenv("TIKTOK_VERIFIED_URL")}"; 4; 20; 20)'
         return ''
     
     @staticmethod

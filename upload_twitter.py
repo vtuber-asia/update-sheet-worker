@@ -1,3 +1,4 @@
+import os
 from csv import DictReader
 
 from content_platform import ContentPlatform
@@ -84,8 +85,8 @@ class UploadTwitter(Upload):
     
     @staticmethod
     def cell_is_verified_from(row):
-        if 'is_verified' in row and row['is_verified']:
-            return '✔️'
+        if 'is_verified' in row and row['is_verified'] and row['is_verified'].lower() == 'true':
+            return f'=image("{os.getenv("TWITTER_BLUE_BADGE_URL")}"; 4; 20; 20)'
         return ''
     
     @staticmethod
@@ -132,7 +133,7 @@ class UploadTwitter(Upload):
     
     @staticmethod
     def cell_possible_sensitive_from(row):
-        if 'possible_sensitive' in row and row['possible_sensitive']:
+        if 'possible_sensitive' in row and row['possible_sensitive'] and row['possible_sensitive'].lower() == 'true':
             return '✔️'
         return ''
     
