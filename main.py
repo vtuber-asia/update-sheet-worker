@@ -12,9 +12,12 @@ from upload_twitch import UploadTwitch
 from upload_twitter import UploadTwitter
 from upload_youtube import UploadYouTube
 from youtube import YouTube
+from datetime import datetime
 
 
 if __name__ == "__main__":
+    start = datetime.now()
+    
     session, logger = setup("id.bungamungil.vtuber-asia-v3.main", logging.INFO)
 
     youTube = YouTube(session, logger)
@@ -43,3 +46,7 @@ if __name__ == "__main__":
     bilibili_csv = bilibili.create_csv()
     upload_bilibili = UploadBilibili(session, logger)
     logger.info(upload_bilibili.upload(bilibili_csv))
+
+    end = datetime.now()
+
+    logger.info(f"Duration: {end - start}")
