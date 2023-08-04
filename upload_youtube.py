@@ -71,7 +71,7 @@ class UploadYouTube(Upload):
     @staticmethod
     def cell_username_from(row):
         if 'username' in row:
-            return f'=hyperlink("https://youtube.com/{row["username"].lower()}"; "@{row["username"].lower()}")'
+            return f'=hyperlink("https://youtube.com/@{row["username"].lower()}"; "@{row["username"].lower()}")'
         return ''
 
     @staticmethod
