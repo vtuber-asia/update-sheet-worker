@@ -1,47 +1,37 @@
-from dotenv import load_dotenv
-from requests import Session
-from urllib3.util.retry import Retry
-from requests.adapters import HTTPAdapter
-from youtube import YouTube
-from twitch import Twitch
-from tiktok import TikTok
-from twitter import Twitter
-from upload_youtube import UploadYouTube
-from upload_link import UploadLink
-from upload_twitch import UploadTwitch
-from upload_tiktok import UploadTikTok
-from upload_twitter import UploadTwitter
 import logging
 
+from setup import setup
+from tiktok import TikTok
+from twitch import Twitch
+from twitter import Twitter
+from upload_link import UploadLink
+from upload_tiktok import UploadTikTok
+from upload_twitch import UploadTwitch
+from upload_twitter import UploadTwitter
+from upload_youtube import UploadYouTube
+from youtube import YouTube
 
 if __name__ == "__main__":
-    load_dotenv()
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("id.bungamungil")
-    session = Session()
-    retry = Retry(connect=10, backoff_factor=0.5)
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    # youTube = YouTube(session, logger)
-    # csv_filename = youTube.create_csv()
-    # upload_youtube = UploadYouTube(session, logger)
-    # response = upload_youtube.upload("20230803102150_youtube.csv")
-    # upload_link = UploadLink(session, logger)
-    # response = upload_link.upload("20230803102150_youtube.csv")
-    # upload_twitch = UploadTwitch(session, logger)
-    # response = upload_twitch.upload("20230802165249_twitch.csv")
+    session, logger = setup("id.bungamungil.vtuber-asia-v3.main", logging.INFO)
+
+    youTube = YouTube(session, logger)
+    youTube_csv = youTube.create_csv()
+    upload_youtube = UploadYouTube(session, logger)
+    logger.info(upload_youtube.upload(youTube_csv))
+    upload_link = UploadLink(session, logger)
+    logger.info(upload_link.upload(youTube_csv))
+
+    twitch = Twitch(session, logger)
+    twitch_csv = twitch.create_csv()
+    upload_twitch = UploadTwitch(session, logger)
+    logger.info(upload_twitch.upload(twitch_csv))
+
+    tiktok = TikTok(session, logger)
+    tiktok_csv = tiktok.create_csv()
     upload_tiktok = UploadTikTok(session, logger)
-    response = upload_tiktok.upload("20230802165427_tiktok.csv")
+    logger.info(upload_tiktok.upload(tiktok_csv))
+
     twitter = Twitter(session, logger)
-    csv = twitter.create_csv()
+    twitter_csv = twitter.create_csv()
     upload_twitter = UploadTwitter(session, logger)
-    response = upload_twitter.upload(csv)
-    print(response)
-    # twitch = Twitch(session, logger)
-    # csv = twitch.create_csv()
-    # tiktok = TikTok(session, logger)
-    # csv = tiktok.create_csv()
-    # twitter = Twitter(session, logger)
-    # csv = twitter.create_csv()
-    
+    logger.info(upload_twitter.upload(twitter_csv))
