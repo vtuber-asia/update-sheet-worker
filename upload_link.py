@@ -12,6 +12,7 @@ class UploadLink(Upload):
             'Summary!R3:R',
             'Summary!Y3:Y',
             'Summary!AJ3:AJ',
+            'Summary!AS3:AS',
         ]
 
     def data_from(self, csv_filename) -> list:
@@ -22,6 +23,7 @@ class UploadLink(Upload):
         twitch_usernames = []
         tiktok_usernames = []
         twitter_usernames = []
+        bilibili_usernames = []
         for username in usernames:
             if username is not None:
                 rows = list(filter(lambda row: row['username'] == ContentPlatform.remove_handler_from(
@@ -30,14 +32,17 @@ class UploadLink(Upload):
                     twitch_usernames.append(rows[0])
                     tiktok_usernames.append(rows[0])
                     twitter_usernames.append(rows[0])
+                    bilibili_usernames.append(rows[0])
                 else:
                     twitch_usernames.append('')
                     tiktok_usernames.append('')
                     twitter_usernames.append('')
+                    bilibili_usernames.append('')
             else:
                 twitch_usernames.append('')
                 tiktok_usernames.append('')
                 twitter_usernames.append('')
+                bilibili_usernames.append('')
         return [
             {
                 'range': self.cell_ranges()[0],
@@ -49,8 +54,12 @@ class UploadLink(Upload):
             },
             {
                 'range': self.cell_ranges()[2],
-                'values': list(map(lambda username: [UploadLink.cell_username_twitter_from(username)], twitter_usernames))
-            }
+                'values': list(map(lambda username: [UploadLink.cell_username_bilibili_from(username)], twitter_usernames))
+            },
+            {
+                'range': self.cell_ranges()[3],
+                'values': list(map(lambda username: [UploadLink.cell_username_twitter_from(username)], bilibili_usernames))
+            },
         ]
 
     @staticmethod
@@ -63,6 +72,12 @@ class UploadLink(Upload):
     def cell_username_tiktok_from(row):
         if 'username_tiktok' in row and row['username_tiktok']:
             return f'=hyperlink("https://tiktok.com/@{row["username_tiktok"]}"; "@{row["username_tiktok"]}")'
+        return ''
+
+    @staticmethod
+    def cell_username_bilibili_from(row):
+        if 'username_bstation' in row and row['username_bstation']:
+            return f'=hyperlink("https://www.bilibili.tv/en/space/{row["username_bstation"]}"; "@{row["username_bstation"]}")'
         return ''
 
     @staticmethod

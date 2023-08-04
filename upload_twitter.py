@@ -31,7 +31,7 @@ class UploadTwitter(Upload):
                 cells.append(['', '', '', '', '', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!AK3:AV',
+                'range': 'Summary!AT3:BE',
                 'values': cells,
             },
             {
