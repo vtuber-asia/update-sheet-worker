@@ -26,9 +26,9 @@ def write_cells_to(spreadsheet_id: str, ranges: str, values: list) -> None:
 
 if __name__ == '__main__':
     load_dotenv()
-    copy_from_spreadsheet_id = '1O0E1IWeVZwV2W-6KwkAIBCbJ75ctMfyc4K4_VwpdhNQ'
-    copy_from_ranges = 'K3:K'
-    copy_to_spreadsheet_id = '1PfRJbdsNa9Kp4IfY6dNxAUulmGLBYKYpIq2M4j88v6M'
-    copy_to_ranges = 'F3:F'
+    copy_from_spreadsheet_id = '' # TODO: fill this
+    copy_from_ranges = '' # TODO: fill this
+    copy_to_spreadsheet_id = '' # TODO: fill this
+    copy_to_ranges = '' # TODO: fill this
     values = fetch_cells_from(copy_from_spreadsheet_id, copy_from_ranges)
     write_cells_to(copy_to_spreadsheet_id, copy_to_ranges, values)
