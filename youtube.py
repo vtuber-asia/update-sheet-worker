@@ -23,13 +23,13 @@ class YouTube(ContentPlatform):
 
     def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)
-        url = f'https://www.youtube.com/@{username}'
+        url = f'https://www.youtube.com/@{username}/about'
         self.logger.info(f'Fetching YouTube channel info for @{username} ...')
-        youtube_channel = self.__youtube_channel_from_url(url)
+        youtube_channel, about_tab = self.__youtube_channel_from_url(url)
         if youtube_channel is None:
             self.logger.warning(f'Could not find YouTube channel: @{username}')
             return None
-        links = YouTube.links_on(youtube_channel)
+        links = YouTube.links_on(about_tab)
         twitch_links = list(
             filter(lambda link: link['platform'] == 'Twitch', links))
         tiktok_links = list(
@@ -134,9 +134,22 @@ class YouTube(ContentPlatform):
                 '//script[contains(., "ytInitialData")]/text()')[0]
             data = json.loads(
                 js_text[js_text.find('{'):js_text.rfind('}') + 1])
-            return data['header']['c4TabbedHeaderRenderer']
-        except Exception:
-            return None
+            tabs = data['contents']['twoColumnBrowseResultsRenderer']['tabs']
+            about_tabs = list(
+                filter(lambda tab: YouTube.filter_tab(tab, 'about'), tabs))
+            about_tab = None
+            if len(about_tabs) > 0:
+                about_tab = about_tabs[0]
+            return data['header']['c4TabbedHeaderRenderer'], about_tab
+        except Exception as e:
+            self.logger.error(e)
+            return None, None
+
+    @staticmethod
+    def filter_tab(tab, name):
+        if 'tabRenderer' not in tab:
+            return False
+        return tab['tabRenderer']['endpoint']['commandMetadata']['webCommandMetadata']['url'][(len(name) * -1):] == name
 
     @staticmethod
     def from_api_fetch_channels_for(channel_ids):
@@ -195,16 +208,20 @@ class YouTube(ContentPlatform):
         return None
 
     @staticmethod
-    def links_on(youtube_channel) -> list:
-        if 'headerLinks' not in youtube_channel or \
-                'channelHeaderLinksRenderer' not in youtube_channel['headerLinks']:
+    def links_on(about_tab) -> list:
+        if 'tabRenderer' not in about_tab or \
+            'content' not in about_tab['tabRenderer'] or \
+            'sectionListRenderer' not in about_tab['tabRenderer']['content'] or \
+            'contents' not in about_tab['tabRenderer']['content']['sectionListRenderer'] or \
+            len(about_tab['tabRenderer']['content']['sectionListRenderer']['contents']) == 0 or \
+            'itemSectionRenderer' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0] or \
+            'contents' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer'] or \
+            len(about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']) == 0 or \
+            'channelAboutFullMetadataRenderer' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0] or \
+                'primaryLinks' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']:
             return []
-        header_links_prop = youtube_channel['headerLinks']['channelHeaderLinksRenderer']
-        header_links_raw = []
-        if 'primaryLinks' in header_links_prop:
-            header_links_raw += header_links_prop['primaryLinks']
-        if 'secondaryLinks' in header_links_prop:
-            header_links_raw += header_links_prop['secondaryLinks']
+        header_links_raw = about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0][
+            'itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']['primaryLinks']
 
         def map_header_links(link):
             url = ContentPlatform.parse_redirect_link_from(
