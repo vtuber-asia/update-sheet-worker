@@ -12,7 +12,7 @@ class YouTubeByChannelIds(YouTube):
     def fetch_channel_id_cells(self) -> list:
         response = gspread_service().spreadsheets().values().get(
             spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="H3:H"
+            range="I3:I"
         ).execute()
         if 'values' in response:
             return list(map(ContentPlatform.cells_on, response['values']))

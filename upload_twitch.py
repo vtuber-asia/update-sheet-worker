@@ -30,7 +30,7 @@ class UploadTwitch(Upload):
                 cells.append(['', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!S3:X',
+                'range': 'Summary!U3:Z',
                 'values': cells,
             },
             {
@@ -55,11 +55,11 @@ class UploadTwitch(Upload):
         cells = UploadTwitch.map_to_cell_from(row)
         cells.extend(
             [
-                f'=XLOOKUP("@{row["username"]}";Summary!$S$3:$S;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$S$3:$S;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$S$3:$S;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$S$3:$S;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$S$3:$S;Summary!$F$3:$F)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$B$3:$B)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$C$3:$C)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$D$3:$D)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$E$3:$E)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$F$3:$F)',
             ]
         )
         return cells

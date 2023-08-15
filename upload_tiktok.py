@@ -31,7 +31,7 @@ class UploadTikTok(Upload):
                 cells.append(['', '', '', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!Z3:AI',
+                'range': 'Summary!AC3:AL',
                 'values': cells,
             },
             {
@@ -60,11 +60,11 @@ class UploadTikTok(Upload):
         cells = UploadTikTok.map_to_cell_from(row)
         cells.extend(
             [
-                f'=XLOOKUP("@{row["username"]}";Summary!$Z$3:$Z;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$Z$3:$Z;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$Z$3:$Z;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$Z$3:$Z;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$Z$3:$Z;Summary!$F$3:$F)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$B$3:$B)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$C$3:$C)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$D$3:$D)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$E$3:$E)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$F$3:$F)',
             ]
         )
         return cells

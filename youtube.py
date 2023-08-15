@@ -15,7 +15,7 @@ class YouTube(ContentPlatform):
     def fetch_username_cells(self) -> list:
         response = gspread_service().spreadsheets().values().get(
             spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="G3:G"
+            range="H3:H"
         ).execute()
         if 'values' in response:
             return list(map(ContentPlatform.cells_on, response['values']))

@@ -29,7 +29,7 @@ class UploadYouTube(Upload):
                 cells.append(['', '', '', '', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!G3:Q',
+                'range': 'Summary!H3:R',
                 'values': cells,
             },
             {
@@ -59,11 +59,11 @@ class UploadYouTube(Upload):
         cells = UploadYouTube.map_to_cell_from(row)
         cells.extend(
             [
-                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$G$3:$G;Summary!$F$3:$F)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$B$3:$B)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$C$3:$C)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$D$3:$D)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$E$3:$E)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$F$3:$F)',
             ]
         )
         return cells

@@ -9,10 +9,10 @@ class UploadLink(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'Summary!R3:R',
-            'Summary!Y3:Y',
-            'Summary!AJ3:AJ',
-            'Summary!AS3:AS',
+            'Summary!S3:S',
+            'Summary!AA3:AA',
+            'Summary!AM3:AM',
+            'Summary!AW3:AW',
         ]
 
     def data_from(self, csv_filename) -> list:

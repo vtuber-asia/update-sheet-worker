@@ -18,7 +18,7 @@ class Twitter(ContentPlatform):
     def fetch_username_cells(self) -> list:
         response = gspread_service().spreadsheets().values().get(
             spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="AT3:AT"
+            range="Summary!AX3:AX"
         ).execute()
         if 'values' in response:
             return list(map(ContentPlatform.cells_on, response['values']))

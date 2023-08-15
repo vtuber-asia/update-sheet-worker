@@ -15,7 +15,7 @@ class Bilibili(ContentPlatform):
     def fetch_username_cells(self) -> list:
         response = gspread_service().spreadsheets().values().get(
             spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="AK3:AK",
+            range="Summary!AN3:AN",
         ).execute()
         if 'values' in response:
             return list(map(ContentPlatform.cells_on, response['values']))

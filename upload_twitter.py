@@ -31,7 +31,7 @@ class UploadTwitter(Upload):
                 cells.append(['', '', '', '', '', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!AT3:BE',
+                'range': 'Summary!AY3:BJ',
                 'values': cells,
             },
             {
@@ -62,11 +62,11 @@ class UploadTwitter(Upload):
         cells = UploadTwitter.map_to_cell_from(row)
         cells.extend(
             [
-                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AT$3:$AT;Summary!$F$3:$F)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$B$3:$B)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$C$3:$C)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$D$3:$D)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$E$3:$E)',
+                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$F$3:$F)',
             ]
         )
         return cells

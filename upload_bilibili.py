@@ -31,7 +31,7 @@ class UploadBilibili(Upload):
                 cells.append(['', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!AK3:AR',
+                'range': 'Summary!AO3:AV',
                 'values': cells,
             },
             {
@@ -58,11 +58,11 @@ class UploadBilibili(Upload):
         cells = UploadBilibili.map_to_cell_from(row)
         cells.extend(
             [
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AK$3:$AK;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AK$3:$AK;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AK$3:$AK;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AK$3:$AK;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AK$3:$AK;Summary!$F$3:$F)',
+                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$B$3:$B)',
+                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$C$3:$C)',
+                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$D$3:$D)',
+                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$E$3:$E)',
+                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$F$3:$F)',
             ]
         )
         return cells
