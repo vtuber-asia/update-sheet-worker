@@ -5,7 +5,7 @@ name: Fetch Singaporean VTubers
 
 on:
   schedule:
-    - cron: "40 0,6,12,18 * * *"
+    - cron: "00 5/6 * * *"
   
 permissions:
   contents: read
