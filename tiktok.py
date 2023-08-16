@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from csv import DictReader, DictWriter
 from datetime import datetime
 
@@ -29,7 +30,8 @@ class TikTok(ContentPlatform):
             page = self.session.get(url, allow_redirects=False)
             if page.status_code != 200:
                 return None
-            tree = html.document_fromstring(page.content.decode(encoding='iso-8859-1'))
+            tree = html.document_fromstring(
+                page.content.decode(encoding='iso-8859-1'))
             paths = tree.xpath('//script[@id="SIGI_STATE"]')
             data = json.loads(paths[0].text)
             unique_id = data['UserPage']['uniqueId']
@@ -49,8 +51,10 @@ class TikTok(ContentPlatform):
         except ChunkedEncodingError:
             return self.fetch_user(username)
         except Exception as e:
-            self.logger.error(f"Error fetching TikTok channel info for @{username}: {e}")
-            return None
+            self.logger.error(
+                f"Error fetching TikTok channel info for @{username}: {e}, retrying ...")
+            time.sleep(2)
+            return self.fetch_user(username)
 
     def create_csv(self) -> str:
         csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_tiktok.csv'
@@ -84,7 +88,7 @@ class TikTok(ContentPlatform):
                 sorted(list(
                     filter(lambda row: row is not None,
                            from_csv_tiktok_users
-                    )
+                           )
                 ), key=lambda row: int(row['followers_count']), reverse=True)
             )
             csvfile.close()
