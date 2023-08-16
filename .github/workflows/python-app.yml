@@ -46,4 +46,10 @@ jobs:
         TIKTOK_VERIFIED_URL: ${{ secrets.TIKTOK_VERIFIED_URL }}
         BILIBILI_VERIFIED_URL: ${{ secrets.BILIBILI_VERIFIED_URL }}
       run: |
-        python main.py
+        mkdir -p csv/sg && cd csv/sg
+        python ../main.py
+        cd ..
+    - uses: actions/upload-artifact@v3
+      with:
+        name: csv
+        path: csv/
