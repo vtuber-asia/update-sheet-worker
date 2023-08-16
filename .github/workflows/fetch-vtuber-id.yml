@@ -5,7 +5,7 @@ name: Fetch Indonesian VTubers
 
 on:
   schedule:
-    - cron: "00 0,6,12,18 * * *"
+    - cron: "00 3/6 * * *"
   
 permissions:
   contents: read
