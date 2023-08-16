@@ -29,10 +29,10 @@ jobs:
       run: |
         mkdir -p credentials
         echo '${{ secrets.GOOGLE_CREDENTIAL }}' > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-    - name: Fetch Indonesian VTubers
+    - name: Fetch Malaysian VTubers
       env:
         GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ../../${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-        GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID_ID }}
+        GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID_MY }}
         TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
         TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
         TWITTER_API_ENDPOINT: ${{ secrets.TWITTER_API_ENDPOINT }}
@@ -42,7 +42,7 @@ jobs:
         TIKTOK_VERIFIED_URL: ${{ secrets.TIKTOK_VERIFIED_URL }}
         BILIBILI_VERIFIED_URL: ${{ secrets.BILIBILI_VERIFIED_URL }}
       run: |
-        mkdir -p csv/id && cd csv/id
+        mkdir -p csv/my && cd csv/my
         python ../../main.py
         cd ..
     - uses: actions/upload-artifact@v3
