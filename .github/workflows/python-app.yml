@@ -32,7 +32,8 @@ jobs:
     - name: Load Credentials
       run: |
         mkdir -p credentials
-        echo ${{ secrets.GOOGLE_CREDENTIAL }} > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+        echo "${{ secrets.GOOGLE_CREDENTIAL }}" > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+        cat ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
     - name: Fetch Singapore VTubers
       env:
         GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
