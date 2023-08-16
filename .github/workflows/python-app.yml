@@ -47,7 +47,7 @@ jobs:
         BILIBILI_VERIFIED_URL: ${{ secrets.BILIBILI_VERIFIED_URL }}
       run: |
         mkdir -p csv/sg && cd csv/sg
-        python ../main.py
+        python ../../main.py
         cd ..
     - uses: actions/upload-artifact@v3
       with:
