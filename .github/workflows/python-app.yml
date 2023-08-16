@@ -35,7 +35,7 @@ jobs:
         echo '${{ secrets.GOOGLE_CREDENTIAL }}' > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
     - name: Fetch Singapore VTubers
       env:
-        GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+        GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ../../${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
         GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID_SG }}
         TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
         TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
