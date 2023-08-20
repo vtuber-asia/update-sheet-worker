@@ -92,7 +92,7 @@ class UploadTwitter(Upload):
     @staticmethod
     def cell_profile_image_url_from(row):
         if 'profile_image_url' in row and row['profile_image_url']:
-            return f'=image("{row["profile_image_url"]}"; 4; 80; 80)'
+            return f'=image("{row["profile_image_url"]}")'
         return ''
     
     @staticmethod
