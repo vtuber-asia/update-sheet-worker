@@ -48,11 +48,11 @@ class UploadTwitter(Upload):
             UploadTwitter.cell_is_verified_from(row),
             UploadTwitter.cell_profile_image_url_from(row),
             UploadTwitter.cell_banner_image_url_from(row),
-            UploadTwitter.cell_favorites_count_from(row),
             UploadTwitter.cell_followers_count_from(row),
             UploadTwitter.cell_following_count_from(row),
             UploadTwitter.cell_media_count_from(row),
             UploadTwitter.cell_tweets_count_from(row),
+            UploadTwitter.cell_favorites_count_from(row),
             UploadTwitter.cell_possible_sensitive_from(row),
             UploadTwitter.cell_timestamp_from(row),
         ]

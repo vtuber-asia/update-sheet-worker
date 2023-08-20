@@ -48,9 +48,9 @@ class UploadYouTube(Upload):
             UploadYouTube.cell_is_membership_active_from(row),
             UploadYouTube.cell_profile_image_url_from(row),
             UploadYouTube.cell_banner_image_url_from(row),
+            UploadYouTube.cell_subscribers_count_from(row),
             UploadYouTube.cell_videos_count_from(row),
             UploadYouTube.cell_views_count_from(row),
-            UploadYouTube.cell_subscribers_count_from(row),
             UploadYouTube.cell_timestamp_from(row),
         ]
 
