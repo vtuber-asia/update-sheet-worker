@@ -96,7 +96,7 @@ class Twitter(ContentPlatform):
                     w.writerow(user)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-            from_csv_twitter_channels = list(DictReader(csvfile))
+            from_csv = list(DictReader(csvfile))
             csvfile.close()
         with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
             w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
@@ -104,7 +104,7 @@ class Twitter(ContentPlatform):
             w.writerows(
                 sorted(list(
                     filter(lambda row: row is not None,
-                           from_csv_twitter_channels
+                           from_csv
                            ),
                 ), key=lambda row: int(row['followers_count']), reverse=True)
             )
