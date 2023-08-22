@@ -16,13 +16,13 @@ class UploadTwitter(Upload):
     def data_from(self, csv_filename) -> list:
         username = Twitter(self.session, self.logger).fetch_username_cells()
         with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-            from_csv_twitter_channels = list(DictReader(csvfile))
+            from_csv = list(DictReader(csvfile))
             csvfile.close()
         cells = []
         for username in username:
             if username is not None:
                 rows = list(filter(lambda row: row['username'].lower() == ContentPlatform.remove_handler_from(
-                    username).lower(), from_csv_twitter_channels))
+                    username).lower(), from_csv))
                 if len(rows) > 0:
                     cells.append(UploadTwitter.map_to_cell_from(rows[0]))
                 else:
@@ -36,7 +36,7 @@ class UploadTwitter(Upload):
             },
             {
                 'range': self.cell_ranges()[0],
-                'values': list(map(UploadTwitter.map_to_cell_with_xlookup_from, from_csv_twitter_channels))
+                'values': list(map(UploadTwitter.map_to_cell_with_xlookup_from, from_csv))
             }
         ]
     
