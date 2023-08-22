@@ -38,6 +38,8 @@ class YouTube(ContentPlatform):
             filter(lambda link: link['platform'] == 'Twitter', links))
         bstation_links = list(
             filter(lambda link: link['platform'] == 'Bstation', links))
+        instagram_links = list(
+            filter(lambda link: link['platform'] == 'Instagram', links))
         return {
             'username': username,
             'channel_id': YouTube.channel_id_on(youtube_channel),
@@ -53,6 +55,7 @@ class YouTube(ContentPlatform):
             'username_tiktok': tiktok_links[0]['username'] if len(tiktok_links) > 0 else None,
             'username_twitter': twitter_links[0]['username'] if len(twitter_links) > 0 else None,
             'username_bstation': bstation_links[0]['username'] if len(bstation_links) > 0 else None,
+            'username_instagram': instagram_links[0]['username'] if len(instagram_links) > 0 else None,
         }
 
     def create_csv(self) -> str:
@@ -72,6 +75,7 @@ class YouTube(ContentPlatform):
             'username_tiktok',
             'username_twitter',
             'username_bstation',
+            'username_instagram',
             'timestamp'
         ]
         with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
