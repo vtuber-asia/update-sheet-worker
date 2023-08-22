@@ -1,4 +1,5 @@
 import os
+import time
 from csv import DictReader, DictWriter
 from datetime import datetime
 from json import loads
@@ -25,34 +26,45 @@ class Instagram(ContentPlatform):
         return []
 
     def fetch_user(self, username: str) -> dict | None:
+        return self.__fetch_user(username, 10)
+    
+    def __fetch_user(self, username: str, try_left: int) -> dict | None:
+        if try_left == 0:
+            return None
         username = ContentPlatform.remove_handler_from(username)
         self.logger.info(f"Fetching Instagram user info for @{username}")
-        response = self.session.get(
-            os.getenv('IG_API_ENDPOINT'),
-            headers={
-                'X-Ig-App-Id': os.getenv('IG_APP_ID'),
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-                'Accept-Language': 'en-US,en;q=0.9,ru;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Accept': '*/*'
-            },
-            params={
-                'username': username,
-            }
-        )
-        json = loads(response.text)
-        if 'status' in json and json['status'].lower() == 'ok' and 'data' in json and 'user' in json['data']:
-            json_data = json['data']['user']
-            return {
-                'username': username,
-                'name': Instagram.name_from(json_data),
-                'is_verified': Instagram.has_blue_checkmark_from(json_data),
-                'profile_image_url': Instagram.profile_image_from(json_data),
-                'followers_count': Instagram.followers_count_from(json_data),
-                'following_count': Instagram.following_count_from(json_data),
-                'post_count': Instagram.post_count_from(json_data),
-                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            }
+        try:
+            response = self.session.get(
+                os.getenv('IG_API_ENDPOINT'),
+                headers={
+                    'X-Ig-App-Id': os.getenv('IG_APP_ID'),
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+                    'Accept-Language': 'en-US,en;q=0.9,ru;q=0.8',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Accept': '*/*'
+                },
+                params={
+                    'username': username,
+                }
+            )
+            json = loads(response.text)
+            if 'status' in json and json['status'].lower() == 'ok' and 'data' in json and 'user' in json['data']:
+                json_data = json['data']['user']
+                return {
+                    'username': username,
+                    'name': Instagram.name_from(json_data),
+                    'is_verified': Instagram.has_blue_checkmark_from(json_data),
+                    'profile_image_url': Instagram.profile_image_from(json_data),
+                    'followers_count': Instagram.followers_count_from(json_data),
+                    'following_count': Instagram.following_count_from(json_data),
+                    'post_count': Instagram.post_count_from(json_data),
+                    'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                }
+        except Exception as e:
+            self.logger.error(
+                f"Error fetching Instagram account info for @{username}: {e}, retrying ...")
+            time.sleep(2)
+            return self.fetch_user(username, try_left - 1)
         return None
 
     def create_csv(self) -> str:
