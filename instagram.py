@@ -64,7 +64,7 @@ class Instagram(ContentPlatform):
             self.logger.error(
                 f"Error fetching Instagram account info for @{username}: {e}, retrying ...")
             time.sleep(2)
-            return self.fetch_user(username, try_left - 1)
+            return self.__fetch_user(username, try_left - 1)
         return None
 
     def create_csv(self) -> str:
