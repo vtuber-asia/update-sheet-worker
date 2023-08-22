@@ -34,8 +34,9 @@ class Instagram(ContentPlatform):
             response = self.session.get(
                 'https://www.instagram.com/' + username + '/'
             )
-            tree = html.document_fromstring(
-                response.content.decode(encoding='iso-8859-1'))
+            response_content = response.content.decode(encoding='iso-8859-1')
+            self.logger.debug(response_content)
+            tree = html.document_fromstring(response_content)
             og_image = tree.xpath(
                 '/html/head/meta[@property="og:image"]/@content')[0]
             og_description = tree.xpath(
