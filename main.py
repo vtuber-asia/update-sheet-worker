@@ -1,23 +1,24 @@
 import logging
+from datetime import datetime
 
 from bilibili import Bilibili
+from instagram import Instagram
 from setup import setup
 from tiktok import TikTok
 from twitch import Twitch
 from twitter import Twitter
 from upload_bilibili import UploadBilibili
+from upload_instagram import UploadInstagram
 from upload_link import UploadLink
 from upload_tiktok import UploadTikTok
 from upload_twitch import UploadTwitch
 from upload_twitter import UploadTwitter
 from upload_youtube import UploadYouTube
 from youtube import YouTube
-from datetime import datetime
-
 
 if __name__ == "__main__":
     start = datetime.now()
-    
+
     session, logger = setup("id.bungamungil.vtuber-asia-v3.main", logging.INFO)
 
     youTube = YouTube(session, logger)
@@ -62,6 +63,14 @@ if __name__ == "__main__":
     del bilibili
     del bilibili_csv
     del upload_bilibili
+
+    instagram = Instagram(session, logger)
+    instagram_csv = instagram.create_csv()
+    upload_instagram = UploadInstagram(session, logger)
+    logger.info(upload_instagram.upload(instagram_csv))
+    del instagram
+    del instagram_csv
+    del upload_instagram
 
     del session
 
