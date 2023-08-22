@@ -41,6 +41,8 @@ jobs:
         TWITTER_BLUE_BADGE_URL: ${{ secrets.TWITTER_BLUE_BADGE_URL }}
         TIKTOK_VERIFIED_URL: ${{ secrets.TIKTOK_VERIFIED_URL }}
         BILIBILI_VERIFIED_URL: ${{ secrets.BILIBILI_VERIFIED_URL }}
+        IG_API_ENDPOINT: ${{ secrets.IG_API_ENDPOINT }}
+        IG_APP_ID: ${{ secrets.IG_APP_ID }}
       run: |
         mkdir -p csv/my && cd csv/my
         python ../../main.py
