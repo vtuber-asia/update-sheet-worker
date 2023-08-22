@@ -45,7 +45,7 @@ jobs:
         IG_API_ENDPOINT: ${{ secrets.IG_API_ENDPOINT }}
         IG_APP_ID: ${{ secrets.IG_APP_ID }}
       run: |
-        mkdir -p csv/my && cd csv/my
+        mkdir -p csv/test && cd csv/test
         python ../../main.py
         cd ..
     - uses: actions/upload-artifact@v3
