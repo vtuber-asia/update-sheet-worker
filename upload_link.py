@@ -67,7 +67,7 @@ class UploadLink(Upload):
             },
             {
                 'range': self.cell_ranges()[4],
-                'values': list(map(lambda username: [UploadLink.cell_username_twitter_from(username)], instagram_usernames))
+                'values': list(map(lambda username: [UploadLink.cell_username_instagram_from(username)], instagram_usernames))
             }
         ]
 
