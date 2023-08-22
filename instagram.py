@@ -53,7 +53,7 @@ class Instagram(ContentPlatform):
             }
         except Exception as e:
             self.logger.error(
-                f"Error fetching Instagram account info for @{username}: {e}, retrying ...")
+                f"Error fetching Instagram account info for @{username}, code : {response.status_code}: {e}, retrying ...")
         return None
 
     def __fetch_user(self, username: str, try_left: int) -> dict | None:
