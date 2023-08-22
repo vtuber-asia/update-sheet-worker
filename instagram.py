@@ -5,10 +5,12 @@ from datetime import datetime
 from json import loads
 from logging import Logger
 
+from lxml import html
 from requests import Session
 
 from content_platform import ContentPlatform
 from gservices import gspread_service
+from utils import value_to_float
 
 
 class Instagram(ContentPlatform):
@@ -26,8 +28,34 @@ class Instagram(ContentPlatform):
         return []
 
     def fetch_user(self, username: str) -> dict | None:
-        return self.__fetch_user(username, 10)
-    
+        username = ContentPlatform.remove_handler_from(username)
+        self.logger.info(f"Fetching Instagram user info for @{username}")
+        try:
+            response = self.session.get(
+                'https://www.instagram.com/' + username + '/'
+            )
+            tree = html.document_fromstring(
+                response.content.decode(encoding='iso-8859-1'))
+            og_image = tree.xpath(
+                '/html/head/meta[@property="og:image"]/@content')[0]
+            og_description = tree.xpath(
+                '/html/head/meta[@property="og:description"]/@content')[0].split(' - ')
+            description = og_description[0].replace(', ', ';').split(';')
+            return {
+                'username': username,
+                'name': og_description[1].replace('See Instagram photos and videos from ', '').split('(')[0],
+                'is_verified': False,
+                'profile_image_url': og_image,
+                'followers_count': value_to_float(description[0].replace(' Followers', '')),
+                'following_count': value_to_float(description[1].replace(' Following', '')),
+                'post_count': value_to_float(description[2].replace(' Posts', '')),
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        except Exception as e:
+            self.logger.error(
+                f"Error fetching Instagram account info for @{username}: {e}, retrying ...")
+        return None
+
     def __fetch_user(self, username: str, try_left: int) -> dict | None:
         if try_left == 0:
             return None
