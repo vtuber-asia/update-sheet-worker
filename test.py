@@ -2,8 +2,8 @@ import logging
 from datetime import datetime
 
 from instagram import Instagram
+from tiktok import TikTok
 from setup import setup
-from upload_instagram import UploadInstagram
 
 if __name__ == "__main__":
     start = datetime.now()
@@ -14,6 +14,13 @@ if __name__ == "__main__":
     ig_account = instagram.fetch_user('@kobokanaeru')
     logger.info(ig_account)
     del instagram
+    del ig_account
+
+    tiktok = TikTok(session, logger)
+    tiktok_account = tiktok.fetch_user('@kobokanaeru')
+    logger.info(tiktok_account)
+    del tiktok
+    del tiktok_account
 
     del session
 
