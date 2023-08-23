@@ -222,17 +222,17 @@ class YouTube(ContentPlatform):
             'contents' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer'] or \
             len(about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']) == 0 or \
             'channelAboutFullMetadataRenderer' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0] or \
-                'primaryLinks' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']:
+                'links' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']:
             return []
         header_links_raw = about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0][
-            'itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']['primaryLinks']
+            'itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']['links']
 
         def map_header_links(link):
             url = ContentPlatform.parse_redirect_link_from(
-                link['navigationEndpoint']['commandMetadata']['webCommandMetadata']['url'])
+                link['channelExternalLinkViewModel']['link']['content'])
             platform = ContentPlatform.parse_platform_from(url)
             return {
-                'text': link['title']['simpleText'],
+                'text': link['channelExternalLinkViewModel']['title']['content'],
                 'url': url,
                 'platform': platform,
                 'username': ContentPlatform.parse_username_from(url, platform)
