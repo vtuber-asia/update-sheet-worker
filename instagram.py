@@ -74,7 +74,8 @@ class Instagram(ContentPlatform):
                 },
                 params={
                     'username': username,
-                }
+                },
+                allow_redirects=False
             )
             json = loads(response.text)
             if 'status' in json and json['status'].lower() == 'ok' and 'data' in json and 'user' in json['data']:
