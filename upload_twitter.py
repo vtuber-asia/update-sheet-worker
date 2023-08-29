@@ -59,17 +59,25 @@ class UploadTwitter(Upload):
     
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
-        cells = UploadTwitter.map_to_cell_from(row)
-        cells.extend(
-            [
-                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$F$3:$F)',
-            ]
-        )
-        return cells
+        return [
+            UploadTwitter.cell_username_from(row),
+            UploadTwitter.cell_name_from(row),
+            UploadTwitter.cell_profile_image_url_from(row),
+            UploadTwitter.cell_banner_image_url_from(row),
+            UploadTwitter.cell_followers_count_from(row),
+            UploadTwitter.cell_following_count_from(row),
+            UploadTwitter.cell_media_count_from(row),
+            UploadTwitter.cell_tweets_count_from(row),
+            UploadTwitter.cell_favorites_count_from(row),
+            UploadTwitter.cell_possible_sensitive_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$E$3:$E)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$F$3:$F)',
+            UploadTwitter.cell_is_verified_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$D$3:$D)',
+            UploadTwitter.cell_timestamp_from(row),
+        ]
     
     @staticmethod
     def cell_username_from(row):

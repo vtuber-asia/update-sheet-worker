@@ -55,17 +55,21 @@ class UploadBilibili(Upload):
     
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
-        cells = UploadBilibili.map_to_cell_from(row)
-        cells.extend(
-            [
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$F$3:$F)',
-            ]
-        )
-        return cells
+        return [
+            UploadBilibili.cell_username_from(row),
+            UploadBilibili.cell_channel_title_from(row),
+            UploadBilibili.cell_profile_image_url_from(row),
+            UploadBilibili.cell_followers_count_from(row),
+            UploadBilibili.cell_following_count_from(row),
+            UploadBilibili.cell_likes_count_from(row),
+            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$B$3:$B)',
+            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$C$3:$C)',
+            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$E$3:$E)',
+            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$F$3:$F)',
+            UploadBilibili.cell_is_verified_from(row),
+            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$D$3:$D)',
+            UploadBilibili.cell_timestamp_from(row),
+        ]
     
     @staticmethod
     def cell_username_from(row):

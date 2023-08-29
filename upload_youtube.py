@@ -56,17 +56,24 @@ class UploadYouTube(Upload):
 
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
-        cells = UploadYouTube.map_to_cell_from(row)
-        cells.extend(
-            [
-                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$F$3:$F)',
-            ]
-        )
-        return cells
+        return [
+            UploadYouTube.cell_username_from(row),
+            UploadYouTube.cell_channel_id_from(row),
+            UploadYouTube.cell_channel_title_from(row),
+            UploadYouTube.cell_badge_from(row),
+            UploadYouTube.cell_is_membership_active_from(row),
+            UploadYouTube.cell_profile_image_url_from(row),
+            UploadYouTube.cell_banner_image_url_from(row),
+            UploadYouTube.cell_subscribers_count_from(row),
+            UploadYouTube.cell_videos_count_from(row),
+            UploadYouTube.cell_views_count_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$E$3:$E)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$F$3:$F)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$D$3:$D)',
+            UploadYouTube.cell_timestamp_from(row),
+        ]
 
     @staticmethod
     def cell_username_from(row):

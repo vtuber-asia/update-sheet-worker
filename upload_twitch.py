@@ -52,17 +52,19 @@ class UploadTwitch(Upload):
 
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
-        cells = UploadTwitch.map_to_cell_from(row)
-        cells.extend(
-            [
-                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$F$3:$F)',
-            ]
-        )
-        return cells
+        return [
+            UploadTwitch.cell_username_from(row),
+            UploadTwitch.cell_broadcast_id_from(row),
+            UploadTwitch.cell_channel_title_from(row),
+            UploadTwitch.cell_profile_image_url_from(row),
+            UploadTwitch.cell_followers_count_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$E$3:$E)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$F$3:$F)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$D$3:$D)',
+            UploadTwitch.cell_timestamp_from(row),
+        ]
 
     @staticmethod
     def cell_username_from(row):

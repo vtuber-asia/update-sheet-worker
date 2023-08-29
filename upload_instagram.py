@@ -55,17 +55,21 @@ class UploadInstagram(Upload):
     
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
-        cells = UploadInstagram.map_to_cell_from(row)
-        cells.extend(
-            [
-                f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$F$3:$F)',
-            ]
-        )
-        return cells
+        return [
+            UploadInstagram.cell_username_from(row),
+            UploadInstagram.cell_name_from(row),
+            UploadInstagram.cell_profile_image_url_from(row),
+            UploadInstagram.cell_followers_count_from(row),
+            UploadInstagram.cell_following_count_from(row),
+            UploadInstagram.cell_post_count_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$E$3:$E)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$F$3:$F)',
+            UploadInstagram.cell_is_verified_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$D$3:$D)',
+            UploadInstagram.cell_timestamp_from(row),
+        ]
     
     @staticmethod
     def cell_username_from(row) -> str:

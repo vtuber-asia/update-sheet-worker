@@ -57,17 +57,23 @@ class UploadTikTok(Upload):
 
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
-        cells = UploadTikTok.map_to_cell_from(row)
-        cells.extend(
-            [
-                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$B$3:$B)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$C$3:$C)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$D$3:$D)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$E$3:$E)',
-                f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$F$3:$F)',
-            ]
-        )
-        return cells
+        return [
+            UploadTikTok.cell_username_from(row),
+            UploadTikTok.cell_user_id_from(row),
+            UploadTikTok.cell_channel_title_from(row),
+            UploadTikTok.cell_profile_image_url_from(row),
+            UploadTikTok.cell_followers_count_from(row),
+            UploadTikTok.cell_following_count_from(row),
+            UploadTikTok.cell_hearts_count_from(row),
+            UploadTikTok.cell_videos_count_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$E$3:$E)',
+            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$F$3:$F)',
+            UploadTikTok.cell_is_verified_from(row),
+            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$D$3:$D)',
+            UploadTikTok.cell_timestamp_from(row),
+        ]
 
     @staticmethod
     def cell_username_from(row):
