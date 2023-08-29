@@ -93,13 +93,13 @@ class UploadYouTube(Upload):
                 return '✅'
             if row['badges'] == 'OFFICIAL_ARTIST_BADGE':
                 return '🎵'
-        return ''
+        return '⬜'
 
     @staticmethod
     def cell_is_membership_active_from(row):
         if 'is_membership_active' in row and row['is_membership_active'].lower() == 'true':
             return '⭐️'
-        return ''
+        return '🔅'
 
     @staticmethod
     def cell_profile_image_url_from(row):
