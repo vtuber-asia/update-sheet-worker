@@ -89,8 +89,8 @@ class UploadTikTok(Upload):
 
     @staticmethod
     def cell_channel_title_from(row):
-        if 'channel_title' in row:
-            return row['channel_title']
+        if 'channel_title' in row and row['channel_title'] and 'username' in row and row['username']:
+            return f'=hyperlink("https://tiktok.com/@{row["username"]}"; "{row["channel_title"]}")'
         return ''
     
     @staticmethod

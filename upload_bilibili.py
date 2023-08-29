@@ -79,8 +79,8 @@ class UploadBilibili(Upload):
     
     @staticmethod
     def cell_channel_title_from(row):
-        if 'channel_title' in row and row['channel_title']:
-            return row['channel_title']
+        if 'channel_title' in row and row['channel_title'] and 'user_id' in row and row['user_id']:
+            return f'=hyperlink("https://www.bilibili.tv/en/space/{row["user_id"]}"; "{row["channel_title"]}")'
         return ''
     
     @staticmethod

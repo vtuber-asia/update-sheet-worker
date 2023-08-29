@@ -87,8 +87,8 @@ class UploadTwitter(Upload):
     
     @staticmethod
     def cell_name_from(row):
-        if 'name' in row:
-            return row['name']
+        if 'name' in row and row['name'] and 'username' in row and row['username']:
+            return f'=hyperlink("https://twitter.com/{row["username"].lower()}"; "{row["name"]}")'
         return ''
     
     @staticmethod

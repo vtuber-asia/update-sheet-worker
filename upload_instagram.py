@@ -79,8 +79,8 @@ class UploadInstagram(Upload):
     
     @staticmethod
     def cell_name_from(row) -> str:
-        if 'name' in row:
-            return row['name']
+        if 'name' in row and 'username' in row:
+            return f'=hyperlink("https://instagram.com/{row["username"]}"; "{row["name"]}")'
         return ''
     
     @staticmethod
