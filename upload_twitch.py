@@ -9,7 +9,7 @@ class UploadTwitch(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'Twitch Ranking by Followers!A3:K',
+            'Twitch!A3:K',
         ]
 
     def data_from(self, csv_filename) -> list:

@@ -8,7 +8,7 @@ class UploadYouTube(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'YouTube Ranking by Subscribers!A3:P',
+            'YouTube!A3:P',
         ]
 
     def data_from(self, csv_filename) -> list:

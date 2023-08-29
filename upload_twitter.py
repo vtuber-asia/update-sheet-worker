@@ -10,7 +10,7 @@ class UploadTwitter(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'Twitter Ranking by Followers!A3:U',
+            'Twitter!A3:U',
         ]
     
     def data_from(self, csv_filename) -> list:

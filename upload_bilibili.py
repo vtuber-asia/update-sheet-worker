@@ -10,7 +10,7 @@ class UploadBilibili(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'Bstation Ranking by Followers!A3:M',
+            'Bstation!A3:M',
         ]
     
     def data_from(self, csv_filename) -> list:

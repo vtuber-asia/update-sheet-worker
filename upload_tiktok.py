@@ -10,7 +10,7 @@ class UploadTikTok(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'TikTok Ranking by Followers!A3:O',
+            'TikTok!A3:O',
         ]
 
     def data_from(self, csv_filename) -> list:
