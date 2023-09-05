@@ -12,8 +12,8 @@ if __name__ == "__main__":
 
     tiktok = TikTok(session, logger)
     tiktok_csv = tiktok.create_csv()
-    upload_tiktok = UploadTikTok(session, logger)
-    logger.info(upload_tiktok.upload(tiktok_csv))
+    upload_tiktok = UploadTikTok(tiktok_csv, session, logger)
+    logger.info(upload_tiktok.upload())
     del tiktok
     del tiktok_csv
     del upload_tiktok

@@ -23,10 +23,10 @@ if __name__ == "__main__":
 
     youTube = YouTube(session, logger)
     youTube_csv = youTube.create_csv()
-    upload_youtube = UploadYouTube(session, logger)
-    logger.info(upload_youtube.upload(youTube_csv))
-    upload_link = UploadLink(session, logger)
-    logger.info(upload_link.upload(youTube_csv))
+    upload_youtube = UploadYouTube(youTube_csv, session, logger)
+    logger.info(upload_youtube.upload())
+    upload_link = UploadLink(youTube_csv, session, logger)
+    logger.info(upload_link.upload())
     del youTube
     del youTube_csv
     del upload_youtube
@@ -34,40 +34,40 @@ if __name__ == "__main__":
 
     twitch = Twitch(session, logger)
     twitch_csv = twitch.create_csv()
-    upload_twitch = UploadTwitch(session, logger)
-    logger.info(upload_twitch.upload(twitch_csv))
+    upload_twitch = UploadTwitch(twitch_csv, session, logger)
+    logger.info(upload_twitch.upload())
     del twitch
     del twitch_csv
     del upload_twitch
 
     tiktok = TikTok(session, logger)
     tiktok_csv = tiktok.create_csv()
-    upload_tiktok = UploadTikTok(session, logger)
-    logger.info(upload_tiktok.upload(tiktok_csv))
+    upload_tiktok = UploadTikTok(tiktok_csv, session, logger)
+    logger.info(upload_tiktok.upload())
     del tiktok
     del tiktok_csv
     del upload_tiktok
 
     twitter = Twitter(session, logger)
     twitter_csv = twitter.create_csv()
-    upload_twitter = UploadTwitter(session, logger)
-    logger.info(upload_twitter.upload(twitter_csv))
+    upload_twitter = UploadTwitter(twitter_csv, session, logger)
+    logger.info(upload_twitter.upload())
     del twitter
     del twitter_csv
     del upload_twitter
 
     bilibili = Bilibili(session, logger)
     bilibili_csv = bilibili.create_csv()
-    upload_bilibili = UploadBilibili(session, logger)
-    logger.info(upload_bilibili.upload(bilibili_csv))
+    upload_bilibili = UploadBilibili(bilibili_csv, session, logger)
+    logger.info(upload_bilibili.upload())
     del bilibili
     del bilibili_csv
     del upload_bilibili
 
     instagram = Instagram(session, logger)
     instagram_csv = instagram.create_csv()
-    upload_instagram = UploadInstagram(session, logger)
-    logger.info(upload_instagram.upload(instagram_csv))
+    upload_instagram = UploadInstagram(instagram_csv, session, logger)
+    logger.info(upload_instagram.upload())
     del instagram
     del instagram_csv
     del upload_instagram

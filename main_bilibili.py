@@ -12,8 +12,8 @@ if __name__ == "__main__":
 
     bilibili = Bilibili(session, logger)
     bilibili_csv = bilibili.create_csv()
-    upload_bilibili = UploadBilibili(session, logger)
-    logger.info(upload_bilibili.upload(bilibili_csv))
+    upload_bilibili = UploadBilibili(bilibili_csv, session, logger)
+    logger.info(upload_bilibili.upload())
     del bilibili
     del bilibili_csv
     del upload_bilibili

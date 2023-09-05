@@ -8,14 +8,14 @@ from gservices import gspread_service
 
 class Upload:
 
-    def __init__(self, session: Session, logger: Logger):
+    def __init__(self, csv_filename: str, session: Session, logger: Logger):
+        self.csv_filename = csv_filename
         self.session = session
         self.logger = logger
 
-    def upload(self, csv_filename):
-        self.csv_filename = csv_filename
+    def upload(self):
         self.logger.info(f"Uploading {self.csv_filename} to Google Sheet ...")
-        data = self.data_from(self.csv_filename)
+        data = self.data_from()
         self.clear_data_on_sheet()
         return gspread_service().spreadsheets().values().batchUpdate(
             spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
@@ -36,5 +36,5 @@ class Upload:
     def cell_ranges(self) -> list:
         pass
 
-    def data_from(self, csv_filename) -> list:
+    def data_from(self) -> list:
         pass

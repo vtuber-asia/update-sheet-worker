@@ -13,9 +13,9 @@ class UploadTikTok(Upload):
             'TikTok!A3:O',
         ]
 
-    def data_from(self, csv_filename) -> list:
+    def data_from(self) -> list:
         usernames = TikTok(self.session, self.logger).fetch_username_cells()
-        with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
             from_csv_tiktok_channels = list(DictReader(csvfile))
             csvfile.close()
         cells = []

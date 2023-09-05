@@ -16,9 +16,9 @@ class UploadLink(Upload):
             'Summary!BK3:BK',
         ]
 
-    def data_from(self, csv_filename) -> list:
+    def data_from(self) -> list:
         usernames = YouTube(self.session, self.logger).fetch_username_cells()
-        with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
             from_csv_youtube_channels = list(DictReader(csvfile))
             csvfile.close()
         twitch_usernames = []

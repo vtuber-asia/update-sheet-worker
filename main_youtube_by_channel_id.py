@@ -13,10 +13,10 @@ if __name__ == "__main__":
 
     youTube = YouTubeByChannelIds(session, logger)
     youTube_csv = youTube.create_csv()
-    upload_youtube = UploadYouTube(session, logger)
-    logger.info(upload_youtube.upload(youTube_csv))
-    upload_link = UploadLink(session, logger)
-    logger.info(upload_link.upload(youTube_csv))
+    upload_youtube = UploadYouTube(youTube_csv, session, logger)
+    logger.info(upload_youtube.upload())
+    upload_link = UploadLink(youTube_csv, session, logger)
+    logger.info(upload_link.upload())
     del youTube
     del youTube_csv
     del upload_youtube
