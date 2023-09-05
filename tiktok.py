@@ -49,12 +49,12 @@ class TikTok(ContentPlatform):
             }
             return tiktok_user
         except ChunkedEncodingError:
-            return self.fetch_user(username)
+            return None
         except Exception as e:
             self.logger.error(
                 f"Error fetching TikTok channel info for @{username}: {e}, retrying ...")
             time.sleep(2)
-            return self.fetch_user(username)
+            return None
 
     def create_csv(self) -> str:
         csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_tiktok.csv'
@@ -74,9 +74,11 @@ class TikTok(ContentPlatform):
             w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
             w.writeheader()
             for username in self.fetch_usernames():
-                tiktok_user = self.fetch_user(username)
-                if tiktok_user is not None:
-                    w.writerow(tiktok_user)
+                tiktok_user = None
+                while tiktok_user is None:
+                    tiktok_user = self.fetch_user(username)
+                    if tiktok_user is not None:
+                        w.writerow(tiktok_user)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
             from_csv_tiktok_users = list(DictReader(csvfile))
