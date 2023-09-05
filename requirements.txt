@@ -3,3 +3,5 @@ gspread==5.10.0
 python-dotenv==1.0.0
 lxml~=4.9.3
 tldextract==3.4.4
+peewee~=3.15.4
+psycopg2-binary~=2.9.7

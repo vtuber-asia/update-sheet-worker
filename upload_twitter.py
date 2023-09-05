@@ -1,9 +1,11 @@
-import os
+from upload import Upload
 from csv import DictReader
 
 from content_platform import ContentPlatform
 from twitter import Twitter
-from upload import Upload
+from metric_models import TwitterMetric
+import uuid
+import os
 
 
 class UploadTwitter(Upload):
@@ -39,6 +41,22 @@ class UploadTwitter(Upload):
                 'values': list(map(UploadTwitter.map_to_cell_with_xlookup_from, from_csv))
             }
         ]
+    
+    def save_on_db(self):
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+            from_csv = list(DictReader(csvfile))
+            csvfile.close()
+        for row in from_csv:
+            twitter_metric = TwitterMetric()
+            twitter_metric.id = str(uuid.uuid4())
+            twitter_metric.account_id = row['username']
+            twitter_metric.followers_count = row['followers_count']
+            twitter_metric.followings_count = row['following_count']
+            twitter_metric.medias_count = row['media_count']
+            twitter_metric.tweets_count = row['tweets_count']
+            twitter_metric.favorites_count = row['favorites_count']
+            twitter_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            twitter_metric.save(force_insert=True)
     
     @staticmethod
     def map_to_cell_from(row) -> list:

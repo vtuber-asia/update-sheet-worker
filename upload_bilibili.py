@@ -1,9 +1,11 @@
-import os
+from upload import Upload
 from csv import DictReader
 
 from content_platform import ContentPlatform
 from bilibili import Bilibili
-from upload import Upload
+from metric_models import BilibiliMetric
+import uuid
+import os
 
 
 class UploadBilibili(Upload):
@@ -39,6 +41,20 @@ class UploadBilibili(Upload):
                 'values': list(map(UploadBilibili.map_to_cell_with_xlookup_from, from_csv_bilibili_channels))
             }
         ]
+    
+    def save_on_db(self):
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+            from_csv_bilibili_channels = list(DictReader(csvfile))
+            csvfile.close()
+        for row in from_csv_bilibili_channels:
+            bilibili_metric = BilibiliMetric()
+            bilibili_metric.id = str(uuid.uuid4())
+            bilibili_metric.account_id = row['user_id']
+            bilibili_metric.followers_count = row['followers_count']
+            bilibili_metric.followings_count = row['following_count']
+            bilibili_metric.likes_count = row['likes_count']
+            bilibili_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            bilibili_metric.save(force_insert=True)
     
     @staticmethod
     def map_to_cell_from(row) -> list:

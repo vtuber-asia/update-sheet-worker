@@ -1,7 +1,11 @@
 from upload import Upload
 from csv import DictReader
+
 from youtube import YouTube
 from content_platform import ContentPlatform
+from metric_models import YouTubeMetric
+import uuid
+import os
 
 
 class UploadYouTube(Upload):
@@ -37,6 +41,20 @@ class UploadYouTube(Upload):
                 'values': list(map(UploadYouTube.map_to_cell_with_xlookup_from, from_csv_youtube_channels))
             }
         ]
+
+    def save_on_db(self):
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+            from_csv_youtube_channels = list(DictReader(csvfile))
+            csvfile.close()
+        for row in from_csv_youtube_channels:
+            youTube_metric = YouTubeMetric()
+            youTube_metric.id = str(uuid.uuid4())
+            youTube_metric.account_id = row['channel_id']
+            youTube_metric.subscribers_count = row['subscribers_count']
+            youTube_metric.videos_count = row['videos_count']
+            youTube_metric.views_count = row['views_count']
+            youTube_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            youTube_metric.save(force_insert=True)
 
     @staticmethod
     def map_to_cell_from(row) -> list:

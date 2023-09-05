@@ -1,9 +1,11 @@
-import os
+from upload import Upload
 from csv import DictReader
 
 from content_platform import ContentPlatform
 from tiktok import TikTok
-from upload import Upload
+from metric_models import TikTokMetric
+import uuid
+import os
 
 
 class UploadTikTok(Upload):
@@ -39,6 +41,21 @@ class UploadTikTok(Upload):
                 'values': list(map(UploadTikTok.map_to_cell_with_xlookup_from, from_csv_tiktok_channels))
             }
         ]
+    
+    def save_on_db(self):
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+            from_csv_tiktok_channels = list(DictReader(csvfile))
+            csvfile.close()
+        for row in from_csv_tiktok_channels:
+            tiktok_metric = TikTokMetric()
+            tiktok_metric.id = str(uuid.uuid4())
+            tiktok_metric.account_id = row['user_id']
+            tiktok_metric.followers_count = row['followers_count']
+            tiktok_metric.followings_count = row['following_count']
+            tiktok_metric.likes_count = row['hearts_count']
+            tiktok_metric.videos_count = row['videos_count']
+            tiktok_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            tiktok_metric.save(force_insert=True)
 
     @staticmethod
     def map_to_cell_from(row) -> list:

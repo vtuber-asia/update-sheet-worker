@@ -24,6 +24,9 @@ class Upload:
                 'data': data,
             },
         ).execute()
+    
+    def save_on_db(self):
+        pass
 
     def clear_data_on_sheet(self):
         return gspread_service().spreadsheets().values().batchClear(

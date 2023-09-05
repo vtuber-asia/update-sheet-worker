@@ -70,6 +70,9 @@ class UploadLink(Upload):
                 'values': list(map(lambda username: [UploadLink.cell_username_instagram_from(username)], instagram_usernames))
             }
         ]
+    
+    def save_on_db(self):
+        return super().save_on_db()
 
     @staticmethod
     def cell_username_twitch_from(row):

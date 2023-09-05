@@ -14,6 +14,7 @@ if __name__ == "__main__":
     twitter_csv = twitter.create_csv()
     upload_twitter = UploadTwitter(twitter_csv, session, logger)
     logger.info(upload_twitter.upload())
+    upload_twitter.save_on_db()
     del twitter
     del twitter_csv
     del upload_twitter

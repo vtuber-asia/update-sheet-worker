@@ -1,8 +1,11 @@
+from upload import Upload
 from csv import DictReader
 
 from content_platform import ContentPlatform
 from twitch import Twitch
-from upload import Upload
+from metric_models import TwitchMetric
+import uuid
+import os
 
 
 class UploadTwitch(Upload):
@@ -38,6 +41,18 @@ class UploadTwitch(Upload):
                 'values': list(map(UploadTwitch.map_to_cell_with_xlookup_from, from_csv_twitch_channels))
             }
         ]
+
+    def save_on_db(self):
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+            from_csv_twitch_channels = list(DictReader(csvfile))
+            csvfile.close()
+        for row in from_csv_twitch_channels:
+            twitch_metric = TwitchMetric()
+            twitch_metric.id = str(uuid.uuid4())
+            twitch_metric.account_id = row['broadcast_id']
+            twitch_metric.followers_count = row['followers_count']
+            twitch_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            twitch_metric.save(force_insert=True)
 
     @staticmethod
     def map_to_cell_from(row) -> list:

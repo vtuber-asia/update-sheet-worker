@@ -1,9 +1,11 @@
-import os
+from upload import Upload
 from csv import DictReader
 
 from content_platform import ContentPlatform
 from instagram import Instagram
-from upload import Upload
+from metric_models import InstagramMetric
+import uuid
+import os
 
 
 class UploadInstagram(Upload):
@@ -39,6 +41,20 @@ class UploadInstagram(Upload):
                 'values': list(map(UploadInstagram.map_to_cell_with_xlookup_from, from_csv))
             }
         ]
+    
+    def save_on_db(self):
+        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
+            from_csv_instagram_accounts = list(DictReader(csvfile))
+            csvfile.close()
+        for row in from_csv_instagram_accounts:
+            instagram_metric = InstagramMetric()
+            instagram_metric.id = str(uuid.uuid4())
+            instagram_metric.account_id = row['username']
+            instagram_metric.followers_count = row['followers_count']
+            instagram_metric.followings_count = row['following_count']
+            instagram_metric.posts_count = row['post_count']
+            instagram_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            instagram_metric.save(force_insert=True)
     
     @staticmethod
     def map_to_cell_from(row) -> list:

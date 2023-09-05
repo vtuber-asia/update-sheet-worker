@@ -14,6 +14,7 @@ if __name__ == "__main__":
     twitch_csv = twitch.create_csv()
     upload_twitch = UploadTwitch(twitch_csv, session, logger)
     logger.info(upload_twitch.upload())
+    upload_twitch.save_on_db()
     del twitch
     del twitch_csv
     del upload_twitch
