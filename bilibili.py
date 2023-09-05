@@ -44,7 +44,7 @@ class Bilibili(ContentPlatform):
                 return None
             return bilibili_user
         except ChunkedEncodingError:
-            return self.fetch_user(username)
+            return False
         except Exception as e:
             self.logger.error(f"Error fetching Bilibili channel info for @{username}: {e}")
             return None
@@ -65,9 +65,11 @@ class Bilibili(ContentPlatform):
             w = DictWriter(csvfile, fieldnames=fields)
             w.writeheader()
             for username in self.fetch_usernames():
-                user = self.fetch_user(username)
-                if user is not None:
-                    w.writerow(user)
+                user = False
+                while user is False:
+                    user = self.fetch_user(username)
+                    if user is not None:
+                        w.writerow(user)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
             from_csv_bilibili_channels = list(DictReader(csvfile))
