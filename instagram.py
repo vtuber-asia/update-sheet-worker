@@ -126,7 +126,7 @@ class Instagram(ContentPlatform):
             w.writerows(
                 sorted(list(
                     filter(lambda row: row is not None, from_csv)
-                ), key=lambda row: int(row['followers_count']), reverse=True)
+                ), key=lambda row: int(float(row['followers_count'])), reverse=True)
             )
             csvfile.close()
         return csv_filename
