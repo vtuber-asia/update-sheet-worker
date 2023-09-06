@@ -4,6 +4,7 @@ from csv import DictReader, DictWriter
 from datetime import datetime
 from json import loads
 from logging import Logger
+from random import randint, shuffle
 
 from lxml import html
 from requests import Session
@@ -57,9 +58,7 @@ class Instagram(ContentPlatform):
                 f"Error fetching Instagram account info for @{username}, code : {response.status_code}: {e}, retrying ...")
         return None
 
-    def __fetch_user(self, username: str, try_left: int) -> dict | None:
-        if try_left == 0:
-            return None
+    def __fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)
         self.logger.info(f"Fetching Instagram user info for @{username}")
         try:
@@ -82,6 +81,7 @@ class Instagram(ContentPlatform):
                 json_data = json['data']['user']
                 return {
                     'username': username,
+                    'id': Instagram.id_from(json_data),
                     'name': Instagram.name_from(json_data),
                     'is_verified': Instagram.has_blue_checkmark_from(json_data),
                     'profile_image_url': Instagram.profile_image_from(json_data),
@@ -93,14 +93,14 @@ class Instagram(ContentPlatform):
         except Exception as e:
             self.logger.error(
                 f"Error fetching Instagram account info for @{username}: {e}, retrying ...")
-            time.sleep(2)
-            return self.__fetch_user(username, try_left - 1)
+            return None
         return None
 
     def create_csv(self) -> str:
         csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_instagram.csv'
         fields = [
             'username',
+            'id',
             'name',
             'is_verified',
             'profile_image_url',
@@ -112,10 +112,13 @@ class Instagram(ContentPlatform):
         with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
             w = DictWriter(csvfile, fieldnames=fields)
             w.writeheader()
-            for username in self.fetch_usernames():
-                user = self.fetch_user(username)
+            usernames = self.fetch_usernames()
+            shuffle(usernames)
+            for username in usernames:
+                user = self.__fetch_user(username)
                 if user is not None:
                     w.writerow(user)
+                time.sleep(randint(2000, 4000) / 1000)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
             from_csv = list(DictReader(csvfile))
@@ -130,6 +133,12 @@ class Instagram(ContentPlatform):
             )
             csvfile.close()
         return csv_filename
+    
+    @staticmethod
+    def id_from(json_data) -> str:
+        if 'id' in json_data:
+            return json_data['id']
+        return ''
 
     @staticmethod
     def name_from(json_data) -> str:
