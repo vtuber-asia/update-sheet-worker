@@ -53,7 +53,7 @@ class UploadYouTube(Upload):
             youTube_metric.subscribers_count = row['subscribers_count']
             youTube_metric.videos_count = row['videos_count']
             youTube_metric.views_count = row['views_count']
-            youTube_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            youTube_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             youTube_metric.save(force_insert=True)
 
     @staticmethod

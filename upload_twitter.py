@@ -55,7 +55,7 @@ class UploadTwitter(Upload):
             twitter_metric.medias_count = row['media_count']
             twitter_metric.tweets_count = row['tweets_count']
             twitter_metric.favorites_count = row['favorites_count']
-            twitter_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            twitter_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             twitter_metric.save(force_insert=True)
     
     @staticmethod

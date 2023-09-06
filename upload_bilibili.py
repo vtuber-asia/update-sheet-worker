@@ -53,7 +53,7 @@ class UploadBilibili(Upload):
             bilibili_metric.followers_count = row['followers_count']
             bilibili_metric.followings_count = row['following_count']
             bilibili_metric.likes_count = row['likes_count']
-            bilibili_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            bilibili_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             bilibili_metric.save(force_insert=True)
     
     @staticmethod

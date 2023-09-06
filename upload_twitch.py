@@ -51,7 +51,7 @@ class UploadTwitch(Upload):
             twitch_metric.id = str(uuid.uuid4())
             twitch_metric.account_id = row['broadcast_id']
             twitch_metric.followers_count = row['followers_count']
-            twitch_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            twitch_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             twitch_metric.save(force_insert=True)
 
     @staticmethod

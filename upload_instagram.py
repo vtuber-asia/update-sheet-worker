@@ -53,7 +53,7 @@ class UploadInstagram(Upload):
             instagram_metric.followers_count = row['followers_count']
             instagram_metric.followings_count = row['following_count']
             instagram_metric.posts_count = row['post_count']
-            instagram_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            instagram_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             instagram_metric.save(force_insert=True)
     
     @staticmethod

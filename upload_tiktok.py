@@ -54,7 +54,7 @@ class UploadTikTok(Upload):
             tiktok_metric.followings_count = row['following_count']
             tiktok_metric.likes_count = row['hearts_count']
             tiktok_metric.videos_count = row['videos_count']
-            tiktok_metric.created_at = f"{row['timestamp']}+{os.getenv('UTC_OFFSET')}"
+            tiktok_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             tiktok_metric.save(force_insert=True)
 
     @staticmethod
