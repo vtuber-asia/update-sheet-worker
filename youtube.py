@@ -130,8 +130,21 @@ class YouTube(ContentPlatform):
         return csv_filename
 
     def __youtube_channel_from_url(self, url) -> dict | None:
-        page = self.session.get(url)
         try:
+            header, tabs = self.__tabs_data_from(url)
+            about_tabs = list(
+                filter(lambda tab: YouTube.filter_tab(tab, 'about'), tabs))
+            about_tab = None
+            if len(about_tabs) > 0:
+                about_tab = about_tabs[0]
+            return header, about_tab
+        except Exception as e:
+            self.logger.error(e)
+            return None, None
+        
+    def __tabs_data_from(self, url) -> dict | None:
+        try:
+            page = self.session.get(url)
             tree = html.document_fromstring(
                 page.content.decode(encoding='iso-8859-1'))
             js_text = tree.xpath(
@@ -139,12 +152,7 @@ class YouTube(ContentPlatform):
             data = json.loads(
                 js_text[js_text.find('{'):js_text.rfind('}') + 1])
             tabs = data['contents']['twoColumnBrowseResultsRenderer']['tabs']
-            about_tabs = list(
-                filter(lambda tab: YouTube.filter_tab(tab, 'about'), tabs))
-            about_tab = None
-            if len(about_tabs) > 0:
-                about_tab = about_tabs[0]
-            return data['header']['c4TabbedHeaderRenderer'], about_tab
+            return data['header']['c4TabbedHeaderRenderer'], tabs
         except Exception as e:
             self.logger.error(e)
             return None, None
