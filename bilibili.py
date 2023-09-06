@@ -68,8 +68,8 @@ class Bilibili(ContentPlatform):
                 user = False
                 while user is False:
                     user = self.fetch_user(username)
-                    if user is not None:
-                        w.writerow(user)
+                if user is not None:
+                    w.writerow(user)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
             from_csv_bilibili_channels = list(DictReader(csvfile))

@@ -77,8 +77,8 @@ class TikTok(ContentPlatform):
                 tiktok_user = False
                 while tiktok_user is False:
                     tiktok_user = self.fetch_user(username)
-                    if tiktok_user is not None:
-                        w.writerow(tiktok_user)
+                if tiktok_user is not None:
+                    w.writerow(tiktok_user)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
             from_csv_tiktok_users = list(DictReader(csvfile))
