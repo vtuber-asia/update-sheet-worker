@@ -3,6 +3,7 @@ from csv import DictReader
 
 from content_platform import ContentPlatform
 from twitter import Twitter
+from account_models import TwitterAccount
 from metric_models import TwitterMetric
 import uuid
 import os
@@ -57,6 +58,30 @@ class UploadTwitter(Upload):
             twitter_metric.favorites_count = row['favorites_count']
             twitter_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             twitter_metric.save(force_insert=True)
+            twitter_account = TwitterAccount()
+            twitter_account.insert(
+                account_id=row['user_id'],
+                username=row['username'],
+                title=row['name'],
+                is_verified=row['is_verified'].lower() == 'true',
+                profile_image_url=row['profile_image_url'],
+                banner_image_url=row['banner_image_url'],
+                is_sensitive=row['possible_sensitive'].lower() == 'true',
+                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                id=str(uuid.uuid4()),
+            ).on_conflict(
+                conflict_target=[TwitterAccount.account_id],
+                preserve=[
+                    TwitterAccount.username, 
+                    TwitterAccount.title, 
+                    TwitterAccount.is_verified,
+                    TwitterAccount.profile_image_url, 
+                    TwitterAccount.banner_image_url,
+                    TwitterAccount.is_sensitive,
+                    TwitterAccount.updated_at
+                ]
+            ).execute()
     
     @staticmethod
     def map_to_cell_from(row) -> list:

@@ -3,6 +3,7 @@ from csv import DictReader
 
 from youtube import YouTube
 from content_platform import ContentPlatform
+from account_models import YouTubeAccount
 from metric_models import YouTubeMetric
 import uuid
 import os
@@ -55,6 +56,30 @@ class UploadYouTube(Upload):
             youTube_metric.views_count = row['views_count']
             youTube_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             youTube_metric.save(force_insert=True)
+            youTube_account = YouTubeAccount()
+            youTube_account.insert(
+                account_id=row['channel_id'],
+                username=row['username'],
+                title=row['channel_title'],
+                badge=UploadYouTube.db_badge_from(row),
+                is_membership_enabled=row['is_membership_active'].lower() == 'true',
+                profile_image_url=row['profile_image_url'],
+                banner_image_url=row['banner_image_url'],
+                created_at=f"row['timestamp']{os.getenv('UTC_OFFSET')}",
+                updated_at=f"row['timestamp']{os.getenv('UTC_OFFSET')}",
+                id=str(uuid.uuid4()),
+            ).on_conflict(
+                conflict_target=[YouTubeAccount.account_id],
+                preserve=[
+                    YouTubeAccount.username, 
+                    YouTubeAccount.title, 
+                    YouTubeAccount.badge,
+                    YouTubeAccount.is_membership_enabled,
+                    YouTubeAccount.profile_image_url,
+                    YouTubeAccount.banner_image_url,
+                    YouTubeAccount.updated_at
+                ]
+            ).execute()
 
     @staticmethod
     def map_to_cell_from(row) -> list:
@@ -119,6 +144,15 @@ class UploadYouTube(Upload):
             if row['badges'] == 'OFFICIAL_ARTIST_BADGE':
                 return '🎵'
         return '⬜'
+    
+    @staticmethod
+    def db_badge_from(row):
+        if 'badges' in row:
+            if row['badges'] == 'CHECK_CIRCLE_THICK':
+                return 'official'
+            if row['badges'] == 'OFFICIAL_ARTIST_BADGE':
+                return 'music'
+        return None
 
     @staticmethod
     def cell_is_membership_active_from(row):

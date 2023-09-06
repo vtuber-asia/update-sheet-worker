@@ -3,6 +3,7 @@ from csv import DictReader
 
 from content_platform import ContentPlatform
 from bilibili import Bilibili
+from account_models import BilibiliAccount
 from metric_models import BilibiliMetric
 import uuid
 import os
@@ -55,6 +56,24 @@ class UploadBilibili(Upload):
             bilibili_metric.likes_count = row['likes_count']
             bilibili_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             bilibili_metric.save(force_insert=True)
+            bilibili_account = BilibiliAccount()
+            bilibili_account.insert(
+                account_id=row['user_id'],
+                title=row['channel_title'],
+                is_verified=row['is_verified'].lower() == 'true',
+                profile_image_url=row['profile_image_url'],
+                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                id=str(uuid.uuid4()),
+            ).on_conflict(
+                conflict_target=[BilibiliAccount.account_id],
+                preserve=[
+                    BilibiliAccount.title, 
+                    BilibiliAccount.is_verified, 
+                    BilibiliAccount.profile_image_url, 
+                    BilibiliAccount.updated_at
+                ]
+            ).execute()
     
     @staticmethod
     def map_to_cell_from(row) -> list:

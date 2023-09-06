@@ -3,6 +3,7 @@ from csv import DictReader
 
 from content_platform import ContentPlatform
 from twitch import Twitch
+from account_models import TwitchAccount
 from metric_models import TwitchMetric
 import uuid
 import os
@@ -53,6 +54,24 @@ class UploadTwitch(Upload):
             twitch_metric.followers_count = row['followers_count']
             twitch_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
             twitch_metric.save(force_insert=True)
+            twitch_account = TwitchAccount()
+            twitch_account.insert(
+                account_id=row['broadcast_id'],
+                username=row['username'],
+                title=row['channel_title'],
+                profile_image_url=row['profile_image_url'],
+                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                id=str(uuid.uuid4()),
+            ).on_conflict(
+                conflict_target=[TwitchAccount.account_id],
+                preserve=[
+                    TwitchAccount.username, 
+                    TwitchAccount.title, 
+                    TwitchAccount.profile_image_url,
+                    TwitchAccount.updated_at
+                ],
+            ).execute()
 
     @staticmethod
     def map_to_cell_from(row) -> list:
