@@ -49,7 +49,7 @@ class UploadTwitter(Upload):
         for row in from_csv:
             twitter_metric = TwitterMetric()
             twitter_metric.id = str(uuid.uuid4())
-            twitter_metric.account_id = row['username']
+            twitter_metric.account_id = row['user_id']
             twitter_metric.followers_count = row['followers_count']
             twitter_metric.followings_count = row['following_count']
             twitter_metric.medias_count = row['media_count']

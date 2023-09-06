@@ -57,6 +57,7 @@ class Twitter(ContentPlatform):
                 return None
             return {
                 'username': username,
+                'user_id': Twitter.user_id_from(json_data),
                 'name': Twitter.name_from(json_data),
                 'is_verified': Twitter.has_blue_checkmark_from(json_data),
                 'profile_image_url': Twitter.profile_image_from(json_data),
@@ -75,6 +76,7 @@ class Twitter(ContentPlatform):
         csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_twitter.csv'
         fields = [
             'username',
+            'user_id',
             'name',
             'is_verified',
             'profile_image_url',
@@ -120,6 +122,12 @@ class Twitter(ContentPlatform):
         )
         return response.json()
     
+    @staticmethod
+    def user_id_from(user):
+        if 'rest_id' in user:
+            return user['rest_id']
+        return None
+
     @staticmethod
     def name_from(user):
         if 'legacy' in user and 'name' in user['legacy']:
