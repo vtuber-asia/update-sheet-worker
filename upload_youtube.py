@@ -65,8 +65,8 @@ class UploadYouTube(Upload):
                 is_membership_enabled=row['is_membership_active'].lower() == 'true',
                 profile_image_url=row['profile_image_url'],
                 banner_image_url=row['banner_image_url'],
-                created_at=f"row['timestamp']{os.getenv('UTC_OFFSET')}",
-                updated_at=f"row['timestamp']{os.getenv('UTC_OFFSET')}",
+                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
                 conflict_target=[YouTubeAccount.account_id],
