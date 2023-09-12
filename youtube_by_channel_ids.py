@@ -1,6 +1,6 @@
 from youtube import YouTube
 from datetime import datetime
-from csv import DictWriter
+from csv import DictReader, DictWriter
 from gservices import gspread_service
 import os
 from content_platform import ContentPlatform
@@ -67,6 +67,21 @@ class YouTubeByChannelIds(YouTube):
                         'username_bstation': None,
                         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     })
+            csvfile.close()
+        with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
+            from_csv_youtube_channels = list(DictReader(csvfile))
+            csvfile.close()
+        with open(csv_filename, 'w', newline='', encoding='iso-8859-1') as csvfile:
+            w = DictWriter(csvfile, fieldnames=fields, extrasaction='ignore')
+            w.writeheader()
+            w.writerows(
+                sorted(list(
+                    filter(
+                        lambda row: row is not None and 'subscribers_count' in row,
+                        from_csv_youtube_channels
+                    )
+                ), key=lambda row: int(row['subscribers_count']), reverse=True)
+            )
             csvfile.close()
         return csv_filename
                 
