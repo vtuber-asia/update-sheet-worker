@@ -27,7 +27,7 @@ class TikTok(ContentPlatform):
         url = f'https://www.tiktok.com/@{username}'
         self.logger.info(f"Fetching TikTok channel info for @{username}")
         try:
-            page = self.session.get(url, allow_redirects=False)
+            page = self.session.get(url, allow_redirects=False, timeout=10)
             if page.status_code != 200:
                 return None
             tree = html.document_fromstring(

@@ -27,7 +27,8 @@ class Twitch(ContentPlatform):
             params={
                 'broadcaster_id': username
             },
-            headers=self.__app_access_headers()
+            headers=self.__app_access_headers(),
+            timeout=10,
         ).json()
 
     def create_csv(self) -> str:
@@ -83,7 +84,8 @@ class Twitch(ContentPlatform):
             params={
                 'login': usernames
             },
-            headers=self.__app_access_headers()
+            headers=self.__app_access_headers(),
+            timeout=10,
         ).json()
 
     def __app_access_headers(self):
@@ -99,5 +101,6 @@ class Twitch(ContentPlatform):
                 'client_id': os.getenv('TWITCH_CLIENT_ID'),
                 'client_secret': os.getenv('TWITCH_CLIENT_SECRET'),
                 'grant_type': 'client_credentials'
-            }
+            },
+            timeout=10,
         ).json()['access_token']

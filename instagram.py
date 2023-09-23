@@ -33,7 +33,8 @@ class Instagram(ContentPlatform):
         self.logger.info(f"Fetching Instagram user info for @{username}")
         try:
             response = self.session.get(
-                'https://www.instagram.com/' + username + '/'
+                'https://www.instagram.com/' + username + '/',
+                timeout=10,
             )
             response_content = response.content.decode(encoding='iso-8859-1')
             self.logger.debug(response_content)
@@ -74,7 +75,8 @@ class Instagram(ContentPlatform):
                 params={
                     'username': username,
                 },
-                allow_redirects=False
+                allow_redirects=False,
+                timeout=10,
             )
             json = loads(response.text)
             if 'status' in json and json['status'].lower() == 'ok' and 'data' in json and 'user' in json['data']:

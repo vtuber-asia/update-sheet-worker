@@ -26,7 +26,7 @@ class Bilibili(ContentPlatform):
         url = f'https://www.bilibili.tv/en/space/{username}'
         self.logger.info(f"Fetching Bilibili channel info for @{username}")
         try:
-            page = self.session.get(url, allow_redirects=False)
+            page = self.session.get(url, allow_redirects=False, timeout=10)
             if page.status_code != 200:
                 return None
             tree = html.document_fromstring(page.content.decode(encoding='iso-8859-1'))

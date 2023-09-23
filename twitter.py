@@ -44,7 +44,8 @@ class Twitter(ContentPlatform):
                 'variables': '{"screen_name":"' + username + '","withSafetyModeUserFields":true}',
                 'features': '{"hidden_profile_likes_enabled":false,"hidden_profile_subscriptions_enabled":false,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"subscriptions_verification_info_verified_since_enabled":true,"highlights_tweets_tab_ui_enabled":true,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true}',
                 'fieldToggles': '{"withAuxiliaryUserLabels":false}'
-            }
+            },
+            timeout=10,
         )
         json = response.json()
         limit_remaining = response.headers['x-rate-limit-remaining']
@@ -118,7 +119,8 @@ class Twitter(ContentPlatform):
             'https://api.twitter.com/1.1/guest/activate.json',
             headers={
                 'Authorization': f'Bearer {os.getenv("TWITTER_API_ACCESS_KEY")}',
-            }
+            },
+            timeout=10,
         )
         return response.json()
     
