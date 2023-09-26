@@ -144,7 +144,7 @@ class YouTube(ContentPlatform):
         
     def __tabs_data_from(self, url) -> dict | None:
         try:
-            page = self.session.get(url, timeout=10)
+            page = self.session.get(url, timeout=10, cookies={'SOCS': 'CAESEwgDEgk0ODE3Nzk3MjQaAmVuIAEaBgiA_LyaBg'})
             tree = html.document_fromstring(
                 page.content.decode(encoding='iso-8859-1'))
             js_text = tree.xpath(
