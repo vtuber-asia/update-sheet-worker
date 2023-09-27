@@ -25,6 +25,7 @@ class TikTok(ContentPlatform):
     def setup_browser(self):
         options = Options()
         options.add_argument("--headless=new")
+        options.add_argument("--disable-gpu")
         self.browser = webdriver.Chrome(options=options)
 
     def fetch_username_cells(self) -> list:
