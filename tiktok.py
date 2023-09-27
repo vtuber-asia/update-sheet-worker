@@ -51,9 +51,9 @@ class TikTok(ContentPlatform):
             data = json.loads(paths[0].text)
             unique_id = data['UserPage']['uniqueId']
             tiktok_user = {
-                'username': username,
+                'username': username.encode('utf-8').decode('iso-8859-1'),
                 'user_id': data['UserModule']['users'][unique_id]['id'],
-                'channel_title': data['UserModule']['users'][unique_id]['nickname'],
+                'channel_title': data['UserModule']['users'][unique_id]['nickname'].encode('utf-8').decode('iso-8859-1'),
                 'is_verified': data['UserModule']['users'][unique_id]['verified'],
                 'profile_image_url': data['UserModule']['users'][unique_id]['avatarLarger'],
                 'followers_count': data['UserModule']['stats'][unique_id]['followerCount'],
@@ -63,13 +63,12 @@ class TikTok(ContentPlatform):
                 'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return tiktok_user
-        except ChunkedEncodingError:
-            return False
+        except KeyError:
+            self.logger.error(f"Couldn't find TikTok channel info for @{username}")
+            return None
         except Exception as e:
-            self.logger.error(
-                f"Error fetching TikTok channel info for @{username}: {e}, retrying ...")
-            time.sleep(2)
-            return False
+            self.logger.error(f"Error fetching TikTok channel info for @{username}, code : {e}")
+            return None
 
     def create_csv(self) -> str:
         csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_tiktok.csv'
