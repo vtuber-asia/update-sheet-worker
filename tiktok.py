@@ -5,6 +5,8 @@ from csv import DictReader, DictWriter
 from datetime import datetime
 
 from lxml import html
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from requests.exceptions import ChunkedEncodingError
 
 from content_platform import ContentPlatform
@@ -12,6 +14,18 @@ from gservices import gspread_service
 
 
 class TikTok(ContentPlatform):
+
+    def __init__(self, session, logger):
+        super().__init__(session, logger)
+        self.setup_browser()
+
+    def __del__(self):
+        self.browser.quit()
+
+    def setup_browser(self):
+        options = Options()
+        options.add_argument("--headless=new")
+        self.browser = webdriver.Chrome(options=options)
 
     def fetch_username_cells(self) -> list:
         response = gspread_service().spreadsheets().values().get(
@@ -27,11 +41,12 @@ class TikTok(ContentPlatform):
         url = f'https://www.tiktok.com/@{username}'
         self.logger.info(f"Fetching TikTok channel info for @{username}")
         try:
-            page = self.session.get(url, allow_redirects=False, timeout=10)
-            if page.status_code != 200:
-                return None
-            tree = html.document_fromstring(
-                page.content.decode(encoding='iso-8859-1'))
+            self.browser.get(url)
+            contains_data = False
+            while not contains_data:
+                contains_data = 'SIGI_STATE' in self.browser.page_source
+                time.sleep(1)
+            tree = html.document_fromstring(self.browser.page_source)
             paths = tree.xpath('//script[@id="SIGI_STATE"]')
             data = json.loads(paths[0].text)
             unique_id = data['UserPage']['uniqueId']
