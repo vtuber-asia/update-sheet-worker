@@ -25,11 +25,11 @@ class YouTube(ContentPlatform):
         username = ContentPlatform.remove_handler_from(username)
         url = f'https://www.youtube.com/@{username}/about'
         self.logger.info(f'Fetching YouTube channel info for @{username} ...')
-        youtube_channel, about_tab = self.__youtube_channel_from_url(url)
+        youtube_channel, data = self.__youtube_channel_from_url(url)
         if youtube_channel is None:
             self.logger.warning(f'Could not find YouTube channel: @{username}')
             return None
-        links = YouTube.links_on(about_tab)
+        links = YouTube.links_on(data)
         twitch_links = list(
             filter(lambda link: link['platform'] == 'Twitch', links))
         tiktok_links = list(
@@ -129,15 +129,10 @@ class YouTube(ContentPlatform):
             csvfile.close()
         return csv_filename
 
-    def __youtube_channel_from_url(self, url) -> dict | None:
+    def __youtube_channel_from_url(self, url) -> (dict | None, dict | None):
         try:
-            header, tabs = self.__tabs_data_from(url)
-            about_tabs = list(
-                filter(lambda tab: YouTube.filter_tab(tab, 'about'), tabs))
-            about_tab = None
-            if len(about_tabs) > 0:
-                about_tab = about_tabs[0]
-            return header, about_tab
+            header, data = self.__tabs_data_from(url)
+            return header, data
         except Exception as e:
             self.logger.error(e)
             return None, None
@@ -152,7 +147,7 @@ class YouTube(ContentPlatform):
             data = json.loads(
                 js_text[js_text.find('{'):js_text.rfind('}') + 1])
             tabs = data['contents']['twoColumnBrowseResultsRenderer']['tabs']
-            return data['header']['c4TabbedHeaderRenderer'], tabs
+            return data['header']['c4TabbedHeaderRenderer'], data
         except Exception as e:
             self.logger.error(e)
             return None, None
@@ -220,38 +215,32 @@ class YouTube(ContentPlatform):
         return None
 
     @staticmethod
-    def links_on(about_tab) -> list:
-        if about_tab is None:
-            return []
-        if 'tabRenderer' not in about_tab or \
-            'content' not in about_tab['tabRenderer'] or \
-            'sectionListRenderer' not in about_tab['tabRenderer']['content'] or \
-            'contents' not in about_tab['tabRenderer']['content']['sectionListRenderer'] or \
-            len(about_tab['tabRenderer']['content']['sectionListRenderer']['contents']) == 0 or \
-            'itemSectionRenderer' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0] or \
-            'contents' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer'] or \
-            len(about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents']) == 0 or \
-            'channelAboutFullMetadataRenderer' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0] or \
-                'links' not in about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0]['itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']:
-            return []
-        header_links_raw = about_tab['tabRenderer']['content']['sectionListRenderer']['contents'][0][
-            'itemSectionRenderer']['contents'][0]['channelAboutFullMetadataRenderer']['links']
+    def links_on(data) -> list:
+        try:
+            header_links_raw = data['onResponseReceivedEndpoints'][0]['showEngagementPanelEndpoint']['engagementPanel'][
+                'engagementPanelSectionListRenderer']['content']['sectionListRenderer']['contents'][0][
+                'itemSectionRenderer']['contents'][0]['aboutChannelRenderer']['metadata']['aboutChannelViewModel'][
+                'links']
 
-        def map_header_links(link):
-            url = ContentPlatform.parse_redirect_link_from(
-                link['channelExternalLinkViewModel']['link']['content'])
-            platform = ContentPlatform.parse_platform_from(url)
-            return {
-                'text': link['channelExternalLinkViewModel']['title']['content'],
-                'url': url,
-                'platform': platform,
-                'username': ContentPlatform.parse_username_from(url, platform)
-            }
+            def map_header_links(link):
+                url = ContentPlatform.parse_redirect_link_from(
+                    link['channelExternalLinkViewModel']['link']['content'])
+                platform = ContentPlatform.parse_platform_from(url)
+                return {
+                    'text': link['channelExternalLinkViewModel']['title']['content'],
+                    'url': url,
+                    'platform': platform,
+                    'username': ContentPlatform.parse_username_from(url, platform)
+                }
 
-        def filter_username(link): return link['username'] is not None
-        links = list(filter(filter_username, list(
-            map(map_header_links, header_links_raw))))
-        return links
+            def filter_username(link):
+                return link['username'] is not None
+
+            links = list(filter(filter_username, list(
+                map(map_header_links, header_links_raw))))
+            return links
+        except KeyError:
+            return []
 
     @staticmethod
     def from_api_thumbnail(from_api_youtube_channel):
