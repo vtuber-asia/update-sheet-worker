@@ -221,6 +221,8 @@ class YouTube(ContentPlatform):
 
     @staticmethod
     def links_on(about_tab) -> list:
+        if about_tab is None:
+            return []
         if 'tabRenderer' not in about_tab or \
             'content' not in about_tab['tabRenderer'] or \
             'sectionListRenderer' not in about_tab['tabRenderer']['content'] or \
