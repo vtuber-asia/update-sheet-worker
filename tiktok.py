@@ -32,19 +32,19 @@ class TikTok(ContentPlatform):
                 return None
             tree = html.document_fromstring(
                 page.content.decode(encoding='iso-8859-1'))
-            paths = tree.xpath('//script[@id="SIGI_STATE"]')
+            paths = tree.xpath('//script[@id="__UNIVERSAL_DATA_FOR_REHYDRATION__"]')
             data = json.loads(paths[0].text)
-            unique_id = data['UserPage']['uniqueId']
+            userInfo = data['__DEFAULT_SCOPE__']['webapp.user-detail']['userInfo']
             tiktok_user = {
                 'username': username,
-                'user_id': data['UserModule']['users'][unique_id]['id'],
-                'channel_title': data['UserModule']['users'][unique_id]['nickname'],
-                'is_verified': data['UserModule']['users'][unique_id]['verified'],
-                'profile_image_url': data['UserModule']['users'][unique_id]['avatarLarger'],
-                'followers_count': data['UserModule']['stats'][unique_id]['followerCount'],
-                'following_count': data['UserModule']['stats'][unique_id]['followingCount'],
-                'hearts_count': data['UserModule']['stats'][unique_id]['heartCount'],
-                'videos_count': data['UserModule']['stats'][unique_id]['videoCount'],
+                'user_id': userInfo['user']['id'],
+                'channel_title': userInfo['user']['nickname'],
+                'is_verified': userInfo['user']['verified'],
+                'profile_image_url': userInfo['user']['avatarLarger'],
+                'followers_count': userInfo['stats']['followerCount'],
+                'following_count': userInfo['stats']['followingCount'],
+                'hearts_count': userInfo['stats']['heartCount'],
+                'videos_count': userInfo['stats']['videoCount'],
                 'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return tiktok_user
