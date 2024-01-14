@@ -19,6 +19,7 @@ def setup(package_name: str, log_level: int) -> (Session, Logger):
     )
     logger = logging.getLogger(package_name)
     session = Session()
+    session.headers["User-Agent"] = "RapidAPI/4.2.0 (Macintosh; OS X/14.2.1) GCDHTTPRequest"
     retry = Retry(connect=10, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
     session.mount('http://', adapter)

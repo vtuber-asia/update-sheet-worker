@@ -1,12 +1,9 @@
 import json
 import os
-import time
 from csv import DictReader, DictWriter
 from datetime import datetime
 
 from lxml import html
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from requests.exceptions import ChunkedEncodingError
 
 from content_platform import ContentPlatform
@@ -14,19 +11,6 @@ from gservices import gspread_service
 
 
 class TikTok(ContentPlatform):
-
-    def __init__(self, session, logger):
-        super().__init__(session, logger)
-        self.setup_browser()
-
-    def __del__(self):
-        self.browser.quit()
-
-    def setup_browser(self):
-        options = Options()
-        options.add_argument("--headless=new")
-        options.add_argument("--disable-gpu")
-        self.browser = webdriver.Chrome(options=options)
 
     def fetch_username_cells(self) -> list:
         response = gspread_service().spreadsheets().values().get(
@@ -42,25 +26,24 @@ class TikTok(ContentPlatform):
         url = f'https://www.tiktok.com/@{username}'
         self.logger.info(f"Fetching TikTok channel info for @{username}")
         try:
-            self.browser.get(url)
-            contains_data = False
-            while not contains_data:
-                contains_data = 'SIGI_STATE' in self.browser.page_source
-                time.sleep(1)
-            tree = html.document_fromstring(self.browser.page_source)
-            paths = tree.xpath('//script[@id="SIGI_STATE"]')
+            page = self.session.get(url, allow_redirects=False, timeout=10)
+            if page.status_code != 200:
+                return None
+            tree = html.document_fromstring(
+                page.content.decode(encoding='iso-8859-1'))
+            paths = tree.xpath('//script[@id="__UNIVERSAL_DATA_FOR_REHYDRATION__"]')
             data = json.loads(paths[0].text)
-            unique_id = data['UserPage']['uniqueId']
+            userInfo = data['__DEFAULT_SCOPE__']['webapp.user-detail']['userInfo']
             tiktok_user = {
-                'username': username.encode('utf-8').decode('iso-8859-1'),
-                'user_id': data['UserModule']['users'][unique_id]['id'],
-                'channel_title': data['UserModule']['users'][unique_id]['nickname'].encode('utf-8').decode('iso-8859-1'),
-                'is_verified': data['UserModule']['users'][unique_id]['verified'],
-                'profile_image_url': data['UserModule']['users'][unique_id]['avatarLarger'],
-                'followers_count': data['UserModule']['stats'][unique_id]['followerCount'],
-                'following_count': data['UserModule']['stats'][unique_id]['followingCount'],
-                'hearts_count': data['UserModule']['stats'][unique_id]['heartCount'],
-                'videos_count': data['UserModule']['stats'][unique_id]['videoCount'],
+                'username': username,
+                'user_id': userInfo['user']['id'],
+                'channel_title': userInfo['user']['nickname'],
+                'is_verified': userInfo['user']['verified'],
+                'profile_image_url': userInfo['user']['avatarLarger'],
+                'followers_count': userInfo['stats']['followerCount'],
+                'following_count': userInfo['stats']['followingCount'],
+                'hearts_count': userInfo['stats']['heartCount'],
+                'videos_count': userInfo['stats']['videoCount'],
                 'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return tiktok_user
