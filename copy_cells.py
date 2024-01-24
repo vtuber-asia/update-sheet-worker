@@ -1,23 +1,22 @@
 from gservices import gspread_service
-from dotenv import load_dotenv
+from inquirer import List, Text, prompt
 
-
-def fetch_cells_from(spreadsheet_id: str, ranges: str) -> list:
+def fetch_cells_from(spreadsheet_id: str, ranges: str, output_opt: str) -> list:
     response = gspread_service().spreadsheets().values().get(
         spreadsheetId=spreadsheet_id,
         range=ranges,
-        valueRenderOption='FORMULA',
+        valueRenderOption=output_opt,
     ).execute()
     if 'values' in response:
         return response['values']
     return []
 
 
-def write_cells_to(spreadsheet_id: str, ranges: str, values: list) -> None:
+def write_cells_to(spreadsheet_id: str, ranges: str, input_opt: str, values: list) -> None:
     return gspread_service().spreadsheets().values().update(
         spreadsheetId=spreadsheet_id,
         range=ranges,
-        valueInputOption='USER_ENTERED',
+        valueInputOption=input_opt,
         body={
             'values': values
         }
@@ -25,10 +24,43 @@ def write_cells_to(spreadsheet_id: str, ranges: str, values: list) -> None:
 
 
 if __name__ == '__main__':
-    load_dotenv()
-    copy_from_spreadsheet_id = '' # TODO: fill this
-    copy_from_ranges = '' # TODO: fill this
-    copy_to_spreadsheet_id = '' # TODO: fill this
-    copy_to_ranges = '' # TODO: fill this
-    values = fetch_cells_from(copy_from_spreadsheet_id, copy_from_ranges)
-    write_cells_to(copy_to_spreadsheet_id, copy_to_ranges, values)
+    questions = [
+        Text('source_spreadsheet_id', 
+             message='Source Spreadsheet ID '),
+        Text('source_range', 
+             message='Source Range '),
+        List('source_value_render_option', 
+             message='How values should be rendered in the output?',
+             choices=[
+                 'FORMULA',
+                 'FORMATTED_VALUE',
+                 'UNFORMATTED_VALUE',
+             ], 
+             carousel=True
+        ),
+        Text('dest_spreadsheet_id', 
+             message='Target Spreadsheet ID '),
+        Text('dest_range', 
+             message='Target Range '),
+        List('dest_value_render_option', 
+             message='How input data should be interpreted?',
+             choices=[
+                 'USER_ENTERED',
+                 'RAW',
+             ],
+             carousel=True
+        ),
+    ]
+    answers = prompt(questions)
+    print(
+        write_cells_to(
+            answers['dest_spreadsheet_id'],
+            answers['dest_range'],
+            answers['dest_value_render_option'],
+            fetch_cells_from(
+                answers['source_spreadsheet_id'],
+                answers['source_range'],
+                answers['source_value_render_option'],
+            )
+        )
+    )
