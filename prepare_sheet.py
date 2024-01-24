@@ -37,6 +37,17 @@ def publish_readonly(file_id):
     ).execute()
 
 
+def prevent_share(file_id):
+    resource = {
+        'writersCanShare': True,
+        'copyRequiresWriterPermission': True
+    }
+    return gdrive_service().files().update(
+        fileId=file_id,
+        body=resource,
+    ).execute()
+
+
 if __name__ == '__main__':
     questions = [
         Text('sheet_title', 
@@ -46,6 +57,10 @@ if __name__ == '__main__':
         Confirm('publish_readonly', 
                 message='Do you want to publish your spreadsheet?', 
                 default=True
+                ),
+        Confirm('prevent_share', 
+                message='Do you want to prevent your spreadsheet to be shared / downloaded by non-writer?', 
+                default=True
                 )
     ]
     answers = prompt(questions)
@@ -53,6 +68,8 @@ if __name__ == '__main__':
     spreadsheet_id = created.get('spreadsheetId')
     spreadsheet_url = created.get('spreadsheetUrl')
     create_permission(spreadsheet_id, answers['writer_email'], 'writer')
-    if (answers['publish_readonly']):
+    if answers['publish_readonly']:
         publish_readonly(spreadsheet_id)
+    if answers['prevent_share']:
+        prevent_share(spreadsheet_id)
     print(f'Spreadsheet has been created, you can access the document here: {spreadsheet_url}')
