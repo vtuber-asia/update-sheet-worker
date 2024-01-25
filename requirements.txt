@@ -5,6 +5,4 @@ lxml~=4.9.3
 tldextract==3.4.4
 peewee~=3.15.4
 psycopg2-binary~=2.9.7
-selenium~=4.13.0
-chromedriver-binary~=119.0.6029.0.0
 inquirer~=3.1.3
