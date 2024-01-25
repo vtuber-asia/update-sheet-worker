@@ -17,7 +17,9 @@ services:
     networks:
       - vtuber_asia
     environment:
-      <<: *shared_environment    
+      <<: *shared_environment
+    volumes:
+     - ./credentials:/usr/src/app/credentials
     command: ["python", "main_tiktok.py"]
     deploy:
       replicas: 0
@@ -30,6 +32,7 @@ services:
       MARIADB_USER: bungaaa
       MARIADB_PASSWORD: loliloncat!123
       MARIADB_DATABASE: vtuber_asia
+      MARIADB_RANDOM_ROOT_PASSWORD: 1
 
 networks:
   vtuber_asia:
