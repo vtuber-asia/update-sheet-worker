@@ -1,0 +1,35 @@
+version: '3.7'
+
+x-shared_environment: &shared_environment
+  GOOGLE_SHEET_ID: 1d5B9Y5fNkiyDRCj_qSwH2mxYwU90iw0F3GHajMJMvr8
+  DB_TYPE: mysql
+  DB_NAME: vtuber_asia
+  DB_USER: bungaaa
+  DB_PASS: loliloncat!123
+  DB_HOST: db
+  DB_PORT: 3306
+
+services:
+  tiktok:
+    image: vtuber-asia-v3:latest
+    build:
+      context: .
+    networks:
+      - vtuber_asia
+    environment:
+      <<: *shared_environment    
+    command: ["python", "main_tiktok.py"]
+    deploy:
+      replicas: 0
+  db:
+    image: mariadb:11.2.2-jammy
+    restart: always
+    networks:
+      - vtuber_asia
+    environment:
+      MARIADB_USER: bungaaa
+      MARIADB_PASSWORD: loliloncat!123
+      MARIADB_DATABASE: vtuber_asia
+
+networks:
+  vtuber_asia:
