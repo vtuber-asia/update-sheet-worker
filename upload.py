@@ -46,7 +46,9 @@ class Upload:
         ).execute()
 
     def cell_ranges(self) -> list:
-        pass
+        return [
+            getenv('GOOGLE_SHEET_RANGE_DEST'),
+        ]
 
     def data_from(self) -> list:
         pass

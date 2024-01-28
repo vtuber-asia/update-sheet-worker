@@ -11,11 +11,6 @@ from os import getenv
 
 class UploadYouTube(Upload):
 
-    def cell_ranges(self) -> list:
-        return [
-            getenv('GOOGLE_SHEET_RANGE_DEST'),
-        ]
-
     def data_from(self) -> list:
         usernames = YouTube(self.session, self.logger).fetch_username_cells()
         with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
@@ -113,7 +108,7 @@ class UploadYouTube(Upload):
             f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$C$3:$C)',
             f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$E$3:$E)',
             f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
-            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$F$3:$F);Profile!$F$3:$F;Profile!$D$3:$D)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$D$3:$D)',
             UploadYouTube.cell_timestamp_from(row),
         ]
 

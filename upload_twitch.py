@@ -1,20 +1,14 @@
 from upload import Upload
 from csv import DictReader
-
 from content_platform import ContentPlatform
 from twitch import Twitch
 from account_models import TwitchAccount
 from metric_models import TwitchMetric
 import uuid
-import os
+from os import getenv
 
 
 class UploadTwitch(Upload):
-
-    def cell_ranges(self) -> list:
-        return [
-            'Twitch!A3:K',
-        ]
 
     def data_from(self) -> list:
         usernames = Twitch(self.session, self.logger).fetch_username_cells()
@@ -34,7 +28,7 @@ class UploadTwitch(Upload):
                 cells.append(['', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!U3:Z',
+                'range': getenv('GOOGLE_SHEET_RANGE_SRC_DATA'),
                 'values': cells,
             },
             {
@@ -52,7 +46,7 @@ class UploadTwitch(Upload):
             twitch_metric.id = str(uuid.uuid4())
             twitch_metric.account_id = row['broadcast_id']
             twitch_metric.followers_count = row['followers_count']
-            twitch_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
+            twitch_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
             twitch_metric.save(force_insert=True)
             twitch_account = TwitchAccount()
             twitch_account.insert(
@@ -60,8 +54,8 @@ class UploadTwitch(Upload):
                 username=row['username'],
                 title=row['channel_title'],
                 profile_image_url=row['profile_image_url'],
-                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
                 preserve=[
@@ -91,11 +85,11 @@ class UploadTwitch(Upload):
             UploadTwitch.cell_channel_title_from(row),
             UploadTwitch.cell_profile_image_url_from(row),
             UploadTwitch.cell_followers_count_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$B$3:$B)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$C$3:$C)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$E$3:$E)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$F$3:$F)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$U$3:$U;Summary!$D$3:$D)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$E$3:$E)',
+            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$D$3:$D)',
             UploadTwitch.cell_timestamp_from(row),
         ]
 
