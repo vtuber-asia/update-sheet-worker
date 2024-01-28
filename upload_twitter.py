@@ -6,16 +6,11 @@ from twitter import Twitter
 from account_models import TwitterAccount
 from metric_models import TwitterMetric
 import uuid
-import os
+from os import getenv
 
 
 class UploadTwitter(Upload):
 
-    def cell_ranges(self) -> list:
-        return [
-            'Twitter!A3:U',
-        ]
-    
     def data_from(self) -> list:
         username = Twitter(self.session, self.logger).fetch_username_cells()
         with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
@@ -34,7 +29,7 @@ class UploadTwitter(Upload):
                 cells.append(['', '', '', '', '', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!AY3:BJ',
+                'range': getenv('GOOGLE_SHEET_RANGE_SRC_DATA'),
                 'values': cells,
             },
             {
@@ -56,7 +51,7 @@ class UploadTwitter(Upload):
             twitter_metric.medias_count = row['media_count']
             twitter_metric.tweets_count = row['tweets_count']
             twitter_metric.favorites_count = row['favorites_count']
-            twitter_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
+            twitter_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
             twitter_metric.save(force_insert=True)
             twitter_account = TwitterAccount()
             twitter_account.insert(
@@ -67,8 +62,8 @@ class UploadTwitter(Upload):
                 profile_image_url=row['profile_image_url'],
                 banner_image_url=row['banner_image_url'],
                 is_sensitive=row['possible_sensitive'].lower() == 'true',
-                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
                 preserve=[
@@ -112,12 +107,12 @@ class UploadTwitter(Upload):
             UploadTwitter.cell_tweets_count_from(row),
             UploadTwitter.cell_favorites_count_from(row),
             UploadTwitter.cell_possible_sensitive_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$B$3:$B)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$C$3:$C)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$E$3:$E)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$F$3:$F)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$E$3:$E)',
+            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadTwitter.cell_is_verified_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$AY$3:$AY;Summary!$D$3:$D)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$D$3:$D)',
             UploadTwitter.cell_timestamp_from(row),
         ]
     
@@ -136,7 +131,7 @@ class UploadTwitter(Upload):
     @staticmethod
     def cell_is_verified_from(row):
         if 'is_verified' in row and row['is_verified'] and row['is_verified'].lower() == 'true':
-            return f'=image("{os.getenv("TWITTER_BLUE_BADGE_URL")}"; 4; 20; 20)'
+            return f'=image("{getenv("TWITTER_BLUE_BADGE_URL")}"; 4; 20; 20)'
         return ''
     
     @staticmethod

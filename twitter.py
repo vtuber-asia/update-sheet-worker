@@ -1,11 +1,10 @@
-import os
+from os import getenv
 from datetime import datetime
 from logging import Logger
 
 from requests import Session
 
 from content_platform import ContentPlatform
-from gservices import gspread_service
 from csv import DictWriter, DictReader
 
 
@@ -14,15 +13,6 @@ class Twitter(ContentPlatform):
     def __init__(self, session: Session, logger: Logger):
         super().__init__(session, logger)
         self.guest_token = None
-
-    def fetch_username_cells(self) -> list:
-        response = gspread_service().spreadsheets().values().get(
-            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="Summary!AX3:AX"
-        ).execute()
-        if 'values' in response:
-            return list(map(ContentPlatform.cells_on, response['values']))
-        return []
 
     def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)
@@ -33,11 +23,11 @@ class Twitter(ContentPlatform):
         self.logger.info(
             f'Using guest token {self.guest_token}, fetching twitter user for {username} ...')
         response = self.session.get(
-            os.getenv('TWITTER_API_ENDPOINT'),
+            getenv('TWITTER_API_ENDPOINT'),
             headers={
                 'Accept': '*/*',
-                'Authorization': f'Bearer {os.getenv("TWITTER_API_ACCESS_KEY")}',
-                'X-Client-Transaction-Id': os.getenv('TWITTER_API_TRANSACTION_ID'),
+                'Authorization': f'Bearer {getenv("TWITTER_API_ACCESS_KEY")}',
+                'X-Client-Transaction-Id': getenv('TWITTER_API_TRANSACTION_ID'),
                 'X-Guest-Token': self.guest_token
             },
             params={
@@ -118,7 +108,7 @@ class Twitter(ContentPlatform):
         response = self.session.post(
             'https://api.twitter.com/1.1/guest/activate.json',
             headers={
-                'Authorization': f'Bearer {os.getenv("TWITTER_API_ACCESS_KEY")}',
+                'Authorization': f'Bearer {getenv("TWITTER_API_ACCESS_KEY")}',
             },
             timeout=10,
         )
