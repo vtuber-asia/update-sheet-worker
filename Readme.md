@@ -1,3 +1,0 @@
-[![Fetch Indonesian VTubers](https://github.com/naufalfachrian/vtuber-asia-v3/actions/workflows/fetch-vtuber-id.yml/badge.svg)](https://github.com/naufalfachrian/vtuber-asia-v3/actions/workflows/fetch-vtuber-id.yml)
-[![Fetch Malaysian VTubers](https://github.com/naufalfachrian/vtuber-asia-v3/actions/workflows/fetch-vtuber-my.yml/badge.svg)](https://github.com/naufalfachrian/vtuber-asia-v3/actions/workflows/fetch-vtuber-my.yml)
-[![Fetch Singaporean VTubers](https://github.com/naufalfachrian/vtuber-asia-v3/actions/workflows/fetch-vtuber-sg.yml/badge.svg)](https://github.com/naufalfachrian/vtuber-asia-v3/actions/workflows/fetch-vtuber-sg.yml)
