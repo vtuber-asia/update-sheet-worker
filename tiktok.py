@@ -1,25 +1,11 @@
 import json
-import os
 from csv import DictReader, DictWriter
 from datetime import datetime
-
 from lxml import html
-from requests.exceptions import ChunkedEncodingError
-
 from content_platform import ContentPlatform
-from gservices import gspread_service
 
 
 class TikTok(ContentPlatform):
-
-    def fetch_username_cells(self) -> list:
-        response = gspread_service().spreadsheets().values().get(
-            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="Summary!AB3:AB",
-        ).execute()
-        if 'values' in response:
-            return list(map(ContentPlatform.cells_on, response['values']))
-        return []
 
     def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)

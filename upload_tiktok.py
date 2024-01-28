@@ -6,15 +6,10 @@ from tiktok import TikTok
 from account_models import TikTokAccount
 from metric_models import TikTokMetric
 import uuid
-import os
+from os import getenv
 
 
 class UploadTikTok(Upload):
-
-    def cell_ranges(self) -> list:
-        return [
-            'TikTok!A3:O',
-        ]
 
     def data_from(self) -> list:
         usernames = TikTok(self.session, self.logger).fetch_username_cells()
@@ -34,7 +29,7 @@ class UploadTikTok(Upload):
                 cells.append(['', '', '', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!AC3:AL',
+                'range': getenv('GOOGLE_SHEET_RANGE_SRC_DATA'),
                 'values': cells,
             },
             {
@@ -55,7 +50,7 @@ class UploadTikTok(Upload):
             tiktok_metric.followings_count = row['following_count']
             tiktok_metric.likes_count = row['hearts_count']
             tiktok_metric.videos_count = row['videos_count']
-            tiktok_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
+            tiktok_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
             tiktok_metric.save(force_insert=True)
             tiktok_account = TikTokAccount()
             tiktok_account.insert(
@@ -64,8 +59,8 @@ class UploadTikTok(Upload):
                 title=row['channel_title'],
                 is_verified=row['is_verified'].lower() == 'true',
                 profile_image_url=row['profile_image_url'],
-                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
                 preserve=[
@@ -103,12 +98,12 @@ class UploadTikTok(Upload):
             UploadTikTok.cell_following_count_from(row),
             UploadTikTok.cell_hearts_count_from(row),
             UploadTikTok.cell_videos_count_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$B$3:$B)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$C$3:$C)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$E$3:$E)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$F$3:$F)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$E$3:$E)',
+            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadTikTok.cell_is_verified_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$AC$3:$AC;Summary!$D$3:$D)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$D$3:$D)',
             UploadTikTok.cell_timestamp_from(row),
         ]
 
@@ -133,7 +128,7 @@ class UploadTikTok(Upload):
     @staticmethod
     def cell_is_verified_from(row):
         if 'is_verified' in row and row['is_verified'].lower() == 'true':
-            return f'=image("{os.getenv("TIKTOK_VERIFIED_URL")}"; 4; 20; 20)'
+            return f'=image("{getenv("TIKTOK_VERIFIED_URL")}"; 4; 20; 20)'
         return ''
     
     @staticmethod
