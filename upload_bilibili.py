@@ -6,16 +6,11 @@ from bilibili import Bilibili
 from account_models import BilibiliAccount
 from metric_models import BilibiliMetric
 import uuid
-import os
+from os import getenv
 
 
 class UploadBilibili(Upload):
 
-    def cell_ranges(self) -> list:
-        return [
-            'Bstation!A3:M',
-        ]
-    
     def data_from(self) -> list:
         username = Bilibili(self.session, self.logger).fetch_username_cells()
         with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
@@ -34,7 +29,7 @@ class UploadBilibili(Upload):
                 cells.append(['', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!AO3:AV',
+                'range': getenv('GOOGLE_SHEET_RANGE_SRC_DATA'),
                 'values': cells,
             },
             {
@@ -54,7 +49,7 @@ class UploadBilibili(Upload):
             bilibili_metric.followers_count = row['followers_count']
             bilibili_metric.followings_count = row['following_count']
             bilibili_metric.likes_count = row['likes_count']
-            bilibili_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
+            bilibili_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
             bilibili_metric.save(force_insert=True)
             bilibili_account = BilibiliAccount()
             bilibili_account.insert(
@@ -62,8 +57,8 @@ class UploadBilibili(Upload):
                 title=row['channel_title'],
                 is_verified=row['is_verified'].lower() == 'true',
                 profile_image_url=row['profile_image_url'],
-                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
                 preserve=[
@@ -96,12 +91,12 @@ class UploadBilibili(Upload):
             UploadBilibili.cell_followers_count_from(row),
             UploadBilibili.cell_following_count_from(row),
             UploadBilibili.cell_likes_count_from(row),
-            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$B$3:$B)',
-            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$C$3:$C)',
-            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$E$3:$E)',
-            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$F$3:$F)',
+            f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$B$3:$B)',
+            f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$C$3:$C)',
+            f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$E$3:$E)',
+            f'=XLOOKUP(XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadBilibili.cell_is_verified_from(row),
-            f'=XLOOKUP("@{row["user_id"]}";Summary!$AO$3:$AO;Summary!$D$3:$D)',
+            f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$D$3:$D)',
             UploadBilibili.cell_timestamp_from(row),
         ]
     
@@ -120,7 +115,7 @@ class UploadBilibili(Upload):
     @staticmethod
     def cell_is_verified_from(row):
         if 'is_verified' in row and row['is_verified'] and row['is_verified'].lower() == 'true':
-            return f'=image("{os.getenv("BILIBILI_VERIFIED_URL")}"; 4; 20; 20)'
+            return f'=image("{getenv("BILIBILI_VERIFIED_URL")}"; 4; 20; 20)'
         return ''
     
     @staticmethod

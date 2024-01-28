@@ -1,4 +1,3 @@
-import os
 from csv import DictReader, DictWriter
 from datetime import datetime
 
@@ -6,21 +5,11 @@ from lxml import html
 from requests.exceptions import ChunkedEncodingError
 
 from content_platform import ContentPlatform
-from gservices import gspread_service
 from utils import value_to_float
 
 
 class Bilibili(ContentPlatform):
 
-    def fetch_username_cells(self) -> list:
-        response = gspread_service().spreadsheets().values().get(
-            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="Summary!AN3:AN",
-        ).execute()
-        if 'values' in response:
-            return list(map(ContentPlatform.cells_on, response['values']))
-        return []
-    
     def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)
         url = f'https://www.bilibili.tv/en/space/{username}'
