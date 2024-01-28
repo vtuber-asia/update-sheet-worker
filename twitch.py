@@ -1,22 +1,11 @@
-import os
+from os import getenv
 from csv import DictReader, DictWriter
 from datetime import datetime
-
 from content_platform import ContentPlatform
-from gservices import gspread_service
 from utils import split
 
 
 class Twitch(ContentPlatform):
-
-    def fetch_username_cells(self) -> list:
-        response = gspread_service().spreadsheets().values().get(
-            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="Summary!T3:T",
-        ).execute()
-        if 'values' in response:
-            return list(map(ContentPlatform.cells_on, response['values']))
-        return []
 
     def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(
@@ -91,15 +80,15 @@ class Twitch(ContentPlatform):
     def __app_access_headers(self):
         return {
             'Authorization': f'Bearer {self.__app_access_token()}',
-            'Client-Id': os.getenv('TWITCH_CLIENT_ID')
+            'Client-Id': getenv('TWITCH_CLIENT_ID')
         }
 
     def __app_access_token(self):
         return self.session.post(
             'https://id.twitch.tv/oauth2/token',
             params={
-                'client_id': os.getenv('TWITCH_CLIENT_ID'),
-                'client_secret': os.getenv('TWITCH_CLIENT_SECRET'),
+                'client_id': getenv('TWITCH_CLIENT_ID'),
+                'client_secret': getenv('TWITCH_CLIENT_SECRET'),
                 'grant_type': 'client_credentials'
             },
             timeout=10,

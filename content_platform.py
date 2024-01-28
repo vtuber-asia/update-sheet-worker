@@ -1,7 +1,7 @@
-import os
+from os import getenv, path
 from logging import Logger
 from urllib.parse import parse_qs, urlparse
-
+from gservices import gspread_service
 from requests import Session
 from tldextract import extract
 
@@ -16,7 +16,13 @@ class ContentPlatform:
         pass
 
     def fetch_username_cells(self) -> list:
-        pass
+        response = gspread_service().spreadsheets().values().get(
+            spreadsheetId=getenv('GOOGLE_SHEET_ID_SRC'),
+            range=getenv('GOOGLE_SHEET_RANGE_SRC_USERNAME')
+        ).execute()
+        if 'values' in response:
+            return list(map(ContentPlatform.cells_on, response['values']))
+        return []
 
     def fetch_usernames(self) -> list:
         return list(
@@ -60,7 +66,7 @@ class ContentPlatform:
         filtered_segments = list(
             filter(lambda s: s != '' and s != extract(url).fqdn,
                    list(map(lambda s: s.replace('/', ''),
-                            os.path.split(
+                            path.split(
                        urlparse(url).path
                    )
                 ))

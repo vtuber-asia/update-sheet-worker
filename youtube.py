@@ -12,15 +12,6 @@ from utils import split
 
 class YouTube(ContentPlatform):
 
-    def fetch_username_cells(self) -> list:
-        response = gspread_service().spreadsheets().values().get(
-            spreadsheetId=getenv('GOOGLE_SHEET_ID_SRC'),
-            range=getenv('GOOGLE_SHEET_RANGE_SRC_USERNAME')
-        ).execute()
-        if 'values' in response:
-            return list(map(ContentPlatform.cells_on, response['values']))
-        return []
-
     def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)
         url = f'https://www.youtube.com/@{username}/about'
