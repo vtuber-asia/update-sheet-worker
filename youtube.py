@@ -1,12 +1,11 @@
 import json
-from os import getenv
 from csv import DictReader, DictWriter
 from datetime import datetime
 
 from lxml import html
 
 from content_platform import ContentPlatform
-from gservices import gspread_service, youtube_service
+from gservices import youtube_service
 from utils import split
 
 
