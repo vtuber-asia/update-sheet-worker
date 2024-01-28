@@ -1,1 +1,14 @@
+__pycache__
+.venv/
+.env
 credentials/
+*.csv
+*.log
+db.json
+.idea/
+.vscode/
+.github/
+.gitignore
+.git/
+assets/
+.dockerignore
