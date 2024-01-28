@@ -1,19 +1,20 @@
 from csv import DictReader
-
+from os import getenv
 from content_platform import ContentPlatform
 from upload import Upload
 from youtube import YouTube
+from gservices import gspread_service
 
 
 class UploadLink(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'Summary!S3:S',
-            'Summary!AA3:AA',
-            'Summary!AM3:AM',
-            'Summary!AW3:AW',
-            'Summary!BK3:BK',
+            getenv('GOOGLE_SHEET_RANGE_FOR_TWITCH_URL_FROM_YOUTUBE'),
+            getenv('GOOGLE_SHEET_RANGE_FOR_TIKTOK_URL_FROM_YOUTUBE'),
+            getenv('GOOGLE_SHEET_RANGE_FOR_BILIBILI_URL_FROM_YOUTUBE'),
+            getenv('GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE'),
+            getenv('GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE'),
         ]
 
     def data_from(self) -> list:
@@ -73,6 +74,26 @@ class UploadLink(Upload):
     
     def save_on_db(self):
         return super().save_on_db()
+    
+    def upload(self):
+        self.logger.info(f"Uploading {self.csv_filename} to Google Sheet ...")
+        data = self.data_from()
+        self.clear_data_on_sheet()
+        return gspread_service().spreadsheets().values().batchUpdate(
+                spreadsheetId=getenv("GOOGLE_SHEET_ID_SRC"),
+                body={
+                    'valueInputOption': 'USER_ENTERED',
+                    'data': data,
+                },
+            ).execute(),
+
+    def clear_data_on_sheet(self):
+        return gspread_service().spreadsheets().values().batchClear(
+            spreadsheetId=getenv("GOOGLE_SHEET_ID_SRC"),
+            body={
+                'ranges': self.cell_ranges(),
+            },
+        ).execute()
 
     @staticmethod
     def cell_username_twitch_from(row):

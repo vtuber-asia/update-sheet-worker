@@ -1,5 +1,5 @@
 import json
-import os
+from os import getenv
 from csv import DictReader, DictWriter
 from datetime import datetime
 
@@ -14,8 +14,8 @@ class YouTube(ContentPlatform):
 
     def fetch_username_cells(self) -> list:
         response = gspread_service().spreadsheets().values().get(
-            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="Summary!G3:G"
+            spreadsheetId=getenv('GOOGLE_SHEET_ID_SRC'),
+            range=getenv('GOOGLE_SHEET_RANGE_SRC_USERNAME')
         ).execute()
         if 'values' in response:
             return list(map(ContentPlatform.cells_on, response['values']))

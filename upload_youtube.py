@@ -6,14 +6,14 @@ from content_platform import ContentPlatform
 from account_models import YouTubeAccount
 from metric_models import YouTubeMetric
 import uuid
-import os
+from os import getenv
 
 
 class UploadYouTube(Upload):
 
     def cell_ranges(self) -> list:
         return [
-            'YouTube!A3:P',
+            getenv('GOOGLE_SHEET_RANGE_DEST'),
         ]
 
     def data_from(self) -> list:
@@ -34,7 +34,7 @@ class UploadYouTube(Upload):
                 cells.append(['', '', '', '', '', '', '', '', '', '', ''])
         return [
             {
-                'range': 'Summary!H3:R',
+                'range': getenv('GOOGLE_SHEET_RANGE_SRC_DATA'),
                 'values': cells,
             },
             {
@@ -54,7 +54,7 @@ class UploadYouTube(Upload):
             youTube_metric.subscribers_count = row['subscribers_count']
             youTube_metric.videos_count = row['videos_count']
             youTube_metric.views_count = row['views_count']
-            youTube_metric.created_at = f"{row['timestamp']}{os.getenv('UTC_OFFSET')}"
+            youTube_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
             youTube_metric.save(force_insert=True)
             youTube_account = YouTubeAccount()
             youTube_account.insert(
@@ -65,8 +65,8 @@ class UploadYouTube(Upload):
                 is_membership_enabled=row['is_membership_active'].lower() == 'true',
                 profile_image_url=row['profile_image_url'],
                 banner_image_url=row['banner_image_url'],
-                created_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
+                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
+                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
                 preserve=[
@@ -109,11 +109,11 @@ class UploadYouTube(Upload):
             UploadYouTube.cell_subscribers_count_from(row),
             UploadYouTube.cell_videos_count_from(row),
             UploadYouTube.cell_views_count_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$B$3:$B)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$C$3:$C)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$E$3:$E)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$F$3:$F)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$H$3:$H;Summary!$D$3:$D)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$B$3:$B)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$C$3:$C)',
+            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$E$3:$E)',
+            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$F$3:$F);Profile!$F$3:$F;Profile!$D$3:$D)',
             UploadYouTube.cell_timestamp_from(row),
         ]
 
