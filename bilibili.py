@@ -39,7 +39,7 @@ class Bilibili(ContentPlatform):
             return None
     
     def create_csv(self) -> str:
-        csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_bilibili.csv'
+        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_bilibili.csv'
         fields = [
             'user_id',
             'channel_title',

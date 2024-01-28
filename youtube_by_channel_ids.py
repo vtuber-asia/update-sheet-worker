@@ -25,7 +25,7 @@ class YouTubeByChannelIds(YouTube):
         )
 
     def create_csv(self) -> str:
-        csv_filename = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube_by_cid.csv'
+        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube_by_cid.csv'
         fields = [
             'username',
             'channel_id',
