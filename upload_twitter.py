@@ -71,7 +71,6 @@ class UploadTwitter(Upload):
                 updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
-                conflict_target=[TwitterAccount.account_id],
                 preserve=[
                     TwitterAccount.username, 
                     TwitterAccount.title, 

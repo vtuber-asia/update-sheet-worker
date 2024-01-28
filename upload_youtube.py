@@ -69,7 +69,6 @@ class UploadYouTube(Upload):
                 updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
-                conflict_target=[YouTubeAccount.account_id],
                 preserve=[
                     YouTubeAccount.username, 
                     YouTubeAccount.title, 

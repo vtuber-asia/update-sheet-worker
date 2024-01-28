@@ -67,7 +67,6 @@ class UploadInstagram(Upload):
                 updated_at=f"{row['timestamp']}{os.getenv('UTC_OFFSET')}",
                 id=str(uuid.uuid4()),
             ).on_conflict(
-                conflict_target=[InstagramAccount.account_id],
                 preserve=[
                     InstagramAccount.username, 
                     InstagramAccount.title, 
