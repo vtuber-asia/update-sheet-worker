@@ -1,5 +1,6 @@
 from gservices import gspread_service
 from inquirer import List, Text, prompt
+from os import getenv
 
 def fetch_cells_from(spreadsheet_id: str, ranges: str, output_opt: str) -> list:
     response = gspread_service().spreadsheets().values().get(
@@ -23,7 +24,7 @@ def write_cells_to(spreadsheet_id: str, ranges: str, input_opt: str, values: lis
     ).execute()
 
 
-if __name__ == '__main__':
+def from_prompt() -> dict[str: str]:
     questions = [
         Text('source_spreadsheet_id', 
              message='Source Spreadsheet ID '),
@@ -51,7 +52,26 @@ if __name__ == '__main__':
              carousel=True
         ),
     ]
-    answers = prompt(questions)
+    return prompt(questions)
+
+
+def from_env() -> dict[str: str]:
+    return {
+        'dest_spreadsheet_id': getenv('DEST_SPREADSHEET_ID'),
+        'dest_range': getenv('DEST_RANGE'),
+        'dest_value_render_option': getenv('DEST_VALUE_RENDER_OPTION'),
+        'source_spreadsheet_id': getenv('SOURCE_SPREADSHEET_ID'),
+        'source_range': getenv('SOURCE_RANGE'),
+        'source_value_render_option': getenv('SOURCE_VALUE_RENDER_OPTION')
+    }
+
+
+if __name__ == '__main__':
+    answers: dict[str: str] = {}
+    if getenv('USING_ENVIRONMENT') is None:
+        answers = from_prompt()
+    else:
+        answers = from_env()
     print(
         write_cells_to(
             answers['dest_spreadsheet_id'],
