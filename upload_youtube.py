@@ -104,11 +104,11 @@ class UploadYouTube(Upload):
             UploadYouTube.cell_subscribers_count_from(row),
             UploadYouTube.cell_videos_count_from(row),
             UploadYouTube.cell_views_count_from(row),
-            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$B$3:$B)',
-            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$C$3:$C)',
-            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
-            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$D$3:$D)',
+            f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$B$3:$B)',
+            f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$C$3:$C)',
+            f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E)',
+            f'=XLOOKUP(XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$D$3:$D)',
             UploadYouTube.cell_timestamp_from(row),
         ]
 
