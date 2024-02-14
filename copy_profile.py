@@ -3,8 +3,8 @@ from copy_cells import fetch_cells_from, write_cells_to
 
 
 if __name__ == '__main__':
-    dest_spreadsheet_id = getenv('DEST_SPREADSHEET_ID')
-    source_spreadsheet_id = getenv('SOURCE_SPREADSHEET_ID')
+    dest_spreadsheet_id = getenv('GOOGLE_SHEET_ID_DEST')
+    source_spreadsheet_id = getenv('GOOGLE_SHEET_ID_SRC')
     print(write_cells_to(
             dest_spreadsheet_id,
             "Profile!A:E",

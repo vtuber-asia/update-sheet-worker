@@ -179,8 +179,8 @@
             "justMyCode": true,
             "env": {
                 "SERVICE_ACCOUNT_FILE": "./credentials/vtuber-asia-38cafbfea5ef.json",
-                "DEST_SPREADSHEET_ID": "1GCdD5FV7ASnwITC7UX8URSjBTN2fKx4zszTI91xoSCg",
-                "SOURCE_SPREADSHEET_ID": "1R8WI9n8XUZhWaOH8giLFulYGhonuDtFfCoWlEu_Y_60",
+                "GOOGLE_SHEET_ID_DEST": "1GCdD5FV7ASnwITC7UX8URSjBTN2fKx4zszTI91xoSCg",
+                "GOOGLE_SHEET_ID_SRC": "1R8WI9n8XUZhWaOH8giLFulYGhonuDtFfCoWlEu_Y_60",
             }
         },
     ]
