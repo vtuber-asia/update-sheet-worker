@@ -104,18 +104,18 @@ class UploadYouTube(Upload):
             UploadYouTube.cell_subscribers_count_from(row),
             UploadYouTube.cell_videos_count_from(row),
             UploadYouTube.cell_views_count_from(row),
-            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$B$3:$B)',
-            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$C$3:$C)',
-            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
-            f'=XLOOKUP("@{row["username"]}";Profile!$F$3:$F;Profile!$D$3:$D)',
+            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$B$3:$B)',
+            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$C$3:$C)',
+            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E)',
+            f'=XLOOKUP(XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP("@{row["channel_id"]}";Profile!$F$3:$F;Profile!$D$3:$D)',
             UploadYouTube.cell_timestamp_from(row),
         ]
 
     @staticmethod
     def cell_username_from(row):
-        if 'username' in row:
-            return f'=hyperlink("https://youtube.com/@{row["username"].lower()}"; "@{row["username"].lower()}")'
+        if 'username' in row and 'channel_id' in row:
+            return f'=hyperlink("https://youtube.com/channel/{row["channel_id"]}"; "@{row["username"].lower()}")'
         return ''
 
     @staticmethod
@@ -126,8 +126,8 @@ class UploadYouTube(Upload):
 
     @staticmethod
     def cell_channel_title_from(row):
-        if 'channel_title' in row and row['channel_title'] and 'username' in row and row['username']:
-            return f'=hyperlink("https://youtube.com/@{row["username"].lower()}"; "{row["channel_title"]}")'
+        if 'channel_title' in row and row['channel_title'] and 'channel_id' in row and row['channel_id']:
+            return f'=hyperlink("https://youtube.com/channel/{row["channel_id"]}"; "{row["channel_title"]}")'
         return ''
 
     @staticmethod
