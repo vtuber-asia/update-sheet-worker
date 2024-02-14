@@ -13,7 +13,7 @@ class YouTube(ContentPlatform):
 
     def fetch_user(self, username: str) -> dict | None:
         username = ContentPlatform.remove_handler_from(username)
-        url = f'https://www.youtube.com/@{username}/about'
+        url = f'https://www.youtube.com/channel/{username}/about'
         self.logger.info(f'Fetching YouTube channel info for @{username} ...')
         youtube_channel, data = self.__youtube_channel_from_url(url)
         if youtube_channel is None:
