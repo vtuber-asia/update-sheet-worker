@@ -1,10 +1,16 @@
 from os import getenv
-from copy_cells import fetch_cells_from, write_cells_to
+from copy_cells import fetch_cells_from, write_cells_to, clear_cells_on
 
 
 if __name__ == '__main__':
     dest_spreadsheet_id = getenv('GOOGLE_SHEET_ID_DEST')
     source_spreadsheet_id = getenv('GOOGLE_SHEET_ID_SRC')
+    print(
+        clear_cells_on(
+            spreadsheet_id=dest_spreadsheet_id, 
+            ranges="Profile!A:K"
+        )
+    )
     print(write_cells_to(
             dest_spreadsheet_id,
             "Profile!A:E",

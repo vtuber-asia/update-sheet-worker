@@ -13,6 +13,13 @@ def fetch_cells_from(spreadsheet_id: str, ranges: str, output_opt: str) -> list:
     return []
 
 
+def clear_cells_on(spreadsheet_id: str, ranges: str) -> None:
+    return gspread_service().spreadsheets().values().clear(
+        spreadsheetId=spreadsheet_id,
+        range=ranges
+    ).execute()
+
+
 def write_cells_to(spreadsheet_id: str, ranges: str, input_opt: str, values: list) -> None:
     return gspread_service().spreadsheets().values().update(
         spreadsheetId=spreadsheet_id,
