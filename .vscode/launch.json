@@ -183,5 +183,16 @@
                 "GOOGLE_SHEET_ID_SRC": "1R8WI9n8XUZhWaOH8giLFulYGhonuDtFfCoWlEu_Y_60",
             }
         },
+        {
+            "name": "Copy Cells",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "copy_cells.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "SERVICE_ACCOUNT_FILE": "./credentials/vtuber-asia-38cafbfea5ef.json",
+            }
+        },
     ]
 }
