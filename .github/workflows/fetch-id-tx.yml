@@ -1,21 +1,20 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Test
+name: ID - Twitter (X)
 
 on:
-  push: 
-    branches: 
-      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "00 4/6 * * *"
   
 permissions:
   contents: read
 
 jobs:
-  test:
-
+  fetch:
     runs-on: ubuntu-latest
-
+    environment: public-sheet
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
@@ -29,26 +28,26 @@ jobs:
     - name: Load Credentials
       run: |
         mkdir -p credentials
-        echo '${{ secrets.GOOGLE_CREDENTIAL }}' > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-    - name: Fetch Test Dataset VTubers
+        echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_CONTENT }}' > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME }}
+    - name: Fetch Indonesian VTubers
       env:
-        GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ../../${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-        GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID_TEST }}
-        TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
-        TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+        SERVICE_ACCOUNT_FILE: ../../${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME}}
+        UTC_OFFSET: ${{ vars.UTC_OFFSET }}
+        GOOGLE_SHEET_ID_SRC: ${{ secrets.ID_GOOGLE_SHEET_SRC }}
+        GOOGLE_SHEET_ID_DEST: ${{ secrets.ID_GOOGLE_SHEET_DEST }}
+        GOOGLE_SHEET_RANGE_SRC_USERNAME: ${{ vars.TX_GOOGLE_SHEET_RANGE_SRC_USERNAME }}
+        GOOGLE_SHEET_RANGE_SRC_DATA: ${{ vars.TX_GOOGLE_SHEET_RANGE_SRC_DATA }}
+        GOOGLE_SHEET_RANGE_DEST: ${{ vars.TX_GOOGLE_SHEET_RANGE_DEST }}
         TWITTER_API_ENDPOINT: ${{ secrets.TWITTER_API_ENDPOINT }}
         TWITTER_API_ACCESS_KEY: ${{ secrets.TWITTER_API_ACCESS_KEY }}
         TWITTER_API_TRANSACTION_ID: ${{ secrets.TWITTER_API_TRANSACTION_ID }}
-        TWITTER_BLUE_BADGE_URL: ${{ secrets.TWITTER_BLUE_BADGE_URL }}
-        TIKTOK_VERIFIED_URL: ${{ secrets.TIKTOK_VERIFIED_URL }}
-        BILIBILI_VERIFIED_URL: ${{ secrets.BILIBILI_VERIFIED_URL }}
-        IG_API_ENDPOINT: ${{ secrets.IG_API_ENDPOINT }}
-        IG_APP_ID: ${{ secrets.IG_APP_ID }}
+        TWITTER_BLUE_BADGE_URL: ${{ vars.TX_TWITTER_BLUE_BADGE_URL }}
       run: |
-        mkdir -p csv/test && cd csv/test
-        python ../../test.py
+        mkdir -p csv/id && cd csv/id
+        python ../../main_twitter.py
         cd ..
     - uses: actions/upload-artifact@v3
       with:
         name: csv
         path: csv/
+  
