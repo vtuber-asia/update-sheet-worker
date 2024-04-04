@@ -6,7 +6,7 @@ name: TH - TikTok
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 1/6 * * *"
+    - cron: "30 5/8 * * *"
   
 permissions:
   contents: read

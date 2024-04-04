@@ -6,7 +6,7 @@ name: ID - Update Profiles
 on:
   workflow_dispatch:
   schedule:
-    - cron: "50 0/6 * * *"
+    - cron: "50 0/8 * * *"
   
 permissions:
   contents: read

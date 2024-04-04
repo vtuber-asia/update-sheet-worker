@@ -6,7 +6,7 @@ name: PH - Update Profiles
 on:
   workflow_dispatch:
   schedule:
-    - cron: "50 1/6 * * *"
+    - cron: "50 3/8 * * *"
   
 permissions:
   contents: read

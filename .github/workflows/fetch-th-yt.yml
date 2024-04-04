@@ -6,7 +6,7 @@ name: TH - YouTube
 on:
   workflow_dispatch: 
   schedule:
-    - cron: "00 1/6 * * *"
+    - cron: "00 5/8 * * *"
   
 permissions:
   contents: read

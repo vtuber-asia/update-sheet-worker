@@ -6,7 +6,7 @@ name: PH - Twitch
 on:
   workflow_dispatch: 
   schedule:
-    - cron: "20 1/6 * * *"
+    - cron: "20 3/8 * * *"
   
 permissions:
   contents: read
