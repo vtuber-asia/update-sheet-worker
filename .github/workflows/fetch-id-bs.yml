@@ -29,7 +29,7 @@ jobs:
       run: |
         mkdir -p credentials
         echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_CONTENT }}' > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME }}
-    - name: Fetch Indonesian VTubers
+    - name: Fetch data from 3rd party source
       env:
         SERVICE_ACCOUNT_FILE: ../../${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME}}
         UTC_OFFSET: ${{ vars.UTC_OFFSET }}
