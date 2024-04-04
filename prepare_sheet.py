@@ -1,6 +1,7 @@
 from gservices import gspread_service, gdrive_service
 from inquirer import Text, Confirm, prompt
 
+
 def create_sheet(title):
     spreadsheet = {
         'properties': {
@@ -50,18 +51,24 @@ def prevent_share(file_id):
 
 if __name__ == '__main__':
     questions = [
-        Text('sheet_title', 
-             message='Spreadsheet Title '),
-        Text('writer_email', 
-             message='Writer / Editor Email '),
-        Confirm('publish_readonly', 
-                message='Do you want to publish your spreadsheet?', 
-                default=True
-                ),
-        Confirm('prevent_share', 
-                message='Do you want to prevent your spreadsheet to be shared / downloaded by non-writer?', 
-                default=True
-                )
+        Text(
+            'sheet_title',
+            message='Spreadsheet Title '
+        ),
+        Text(
+            'writer_email',
+            message='Writer / Editor Email '
+        ),
+        Confirm(
+            'publish_readonly',
+            message='Do you want to publish your spreadsheet?',
+            default=True
+        ),
+        Confirm(
+            'prevent_share',
+            message='Do you want to prevent your spreadsheet to be shared / downloaded by non-writer?',
+            default=True
+        )
     ]
     answers = prompt(questions)
     created = create_sheet(answers['sheet_title'])
@@ -72,4 +79,8 @@ if __name__ == '__main__':
         publish_readonly(spreadsheet_id)
     if answers['prevent_share']:
         prevent_share(spreadsheet_id)
-    print(f'Spreadsheet has been created, you can access the document here: {spreadsheet_url}')
+    print(
+        f'Spreadsheet has been created, you can access the document here: {
+            spreadsheet_url
+        }'
+    )

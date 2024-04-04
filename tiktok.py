@@ -16,8 +16,11 @@ class TikTok(ContentPlatform):
             if page.status_code != 200:
                 return None
             tree = html.document_fromstring(
-                page.content.decode(encoding='iso-8859-1'))
-            paths = tree.xpath('//script[@id="__UNIVERSAL_DATA_FOR_REHYDRATION__"]')
+                page.content.decode(encoding='iso-8859-1')
+            )
+            paths = tree.xpath(
+                '//script[@id="__UNIVERSAL_DATA_FOR_REHYDRATION__"]'
+            )
             data = json.loads(paths[0].text)
             userInfo = data['__DEFAULT_SCOPE__']['webapp.user-detail']['userInfo']
             tiktok_user = {
@@ -34,14 +37,22 @@ class TikTok(ContentPlatform):
             }
             return tiktok_user
         except KeyError:
-            self.logger.error(f"Couldn't find TikTok channel info for @{username}")
+            self.logger.error(
+                f"Couldn't find TikTok channel info for @{username}"
+            )
             return None
         except Exception as e:
-            self.logger.error(f"Error fetching TikTok channel info for @{username}, code : {e}")
+            self.logger.error(
+                f"Error fetching TikTok channel info for @{
+                    username
+                }, code : {e}"
+            )
             return None
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_tiktok.csv'
+        csv_filename = f'./outputs/{
+            datetime.now().strftime("%Y%m%d%H%M%S")
+        }_tiktok.csv'
         fields = [
             'username',
             'user_id',

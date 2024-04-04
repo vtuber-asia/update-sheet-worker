@@ -64,12 +64,14 @@ class ContentPlatform:
     @staticmethod
     def parse_username_from(url, platform=None) -> str | None:
         filtered_segments = list(
-            filter(lambda s: s != '' and s != extract(url).fqdn,
-                   list(map(lambda s: s.replace('/', ''),
-                            path.split(
-                       urlparse(url).path
-                   )
-                ))
+            filter(
+                lambda s: s != '' and s != extract(url).fqdn,
+                list(
+                    map(
+                        lambda s: s.replace('/', ''),
+                        path.split(urlparse(url).path)
+                    )
+                )
             )
         )
         if len(filtered_segments) > 0:

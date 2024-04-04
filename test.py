@@ -8,7 +8,9 @@ from setup import setup
 if __name__ == "__main__":
     start = datetime.now()
 
-    session, logger = setup("id.bungamungil.vtuber-asia-v3.main", logging.DEBUG)
+    session, logger = setup(
+        "id.bungamungil.vtuber-asia-v3.main", logging.DEBUG
+    )
 
     instagram = Instagram(session, logger)
     ig_account = instagram.fetch_user('@kobokanaeru')

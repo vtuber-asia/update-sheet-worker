@@ -44,7 +44,9 @@ class Twitter(ContentPlatform):
         if 'data' in json and 'user' in json['data'] and 'result' in json['data']['user']:
             json_data = json['data']['user']['result']
             if 'reason' in json_data:
-                self.logger.info(f'Twitter account for @{username} is {json_data["reason"]}')
+                self.logger.info(
+                    f'Twitter account for @{username} is {json_data["reason"]}'
+                )
                 return None
             return {
                 'username': username,
@@ -64,7 +66,9 @@ class Twitter(ContentPlatform):
         return None
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_twitter.csv'
+        csv_filename = f'./outputs/{
+            datetime.now().strftime("%Y%m%d%H%M%S")
+        }_twitter.csv'
         fields = [
             'username',
             'user_id',
@@ -113,7 +117,7 @@ class Twitter(ContentPlatform):
             timeout=10,
         )
         return response.json()
-    
+
     @staticmethod
     def user_id_from(user):
         if 'rest_id' in user:

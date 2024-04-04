@@ -17,15 +17,19 @@ class YouTubeByChannelIds(YouTube):
         if 'values' in response:
             return list(map(ContentPlatform.cells_on, response['values']))
         return []
-    
+
     def fetch_channel_ids(self) -> list:
         return list(
-            filter(lambda channel_id: channel_id is not None,
-                     self.fetch_channel_id_cells())
+            filter(
+                lambda channel_id: channel_id is not None,
+                self.fetch_channel_id_cells()
+            )
         )
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube_by_cid.csv'
+        csv_filename = f'./outputs/{
+            datetime.now().strftime("%Y%m%d%H%M%S")
+        }_youtube_by_cid.csv'
         fields = [
             'username',
             'channel_id',
@@ -48,7 +52,9 @@ class YouTubeByChannelIds(YouTube):
             w.writeheader()
             youtube_channel_ids_chunks = split(self.fetch_channel_ids(), 50)
             for youtube_channel_ids_chunk in youtube_channel_ids_chunks:
-                from_api_youtube_channels = self.from_api_fetch_channels_for(youtube_channel_ids_chunk)['items']
+                from_api_youtube_channels = self.from_api_fetch_channels_for(
+                    youtube_channel_ids_chunk
+                )['items']
                 for from_api_youtube_channel in from_api_youtube_channels:
                     w.writerow({
                         'username': ContentPlatform.remove_handler_from(from_api_youtube_channel['snippet']['customUrl']) if 'customUrl' in from_api_youtube_channel['snippet'] else None,
@@ -84,5 +90,3 @@ class YouTubeByChannelIds(YouTube):
             )
             csvfile.close()
         return csv_filename
-                
-        

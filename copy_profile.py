@@ -7,11 +7,12 @@ if __name__ == '__main__':
     source_spreadsheet_id = getenv('GOOGLE_SHEET_ID_SRC')
     print(
         clear_cells_on(
-            spreadsheet_id=dest_spreadsheet_id, 
+            spreadsheet_id=dest_spreadsheet_id,
             ranges="Profile!A:K"
         )
     )
-    print(write_cells_to(
+    print(
+        write_cells_to(
             dest_spreadsheet_id,
             "Profile!A:E",
             "USER_ENTERED",
@@ -22,7 +23,8 @@ if __name__ == '__main__':
             )
         )
     )
-    print(write_cells_to(
+    print(
+        write_cells_to(
             dest_spreadsheet_id,
             "Profile!F:F",
             "RAW",
@@ -33,7 +35,8 @@ if __name__ == '__main__':
             )
         )
     )
-    print(write_cells_to(
+    print(
+        write_cells_to(
             dest_spreadsheet_id,
             "Profile!G:G",
             "RAW",
@@ -44,7 +47,8 @@ if __name__ == '__main__':
             )
         )
     )
-    print(write_cells_to(
+    print(
+        write_cells_to(
             dest_spreadsheet_id,
             "Profile!H:H",
             "RAW",
@@ -55,7 +59,8 @@ if __name__ == '__main__':
             )
         )
     )
-    print(write_cells_to(
+    print(
+        write_cells_to(
             dest_spreadsheet_id,
             "Profile!I:I",
             "RAW",
@@ -66,7 +71,8 @@ if __name__ == '__main__':
             )
         )
     )
-    print(write_cells_to(
+    print(
+        write_cells_to(
             dest_spreadsheet_id,
             "Profile!J:J",
             "RAW",
@@ -77,7 +83,8 @@ if __name__ == '__main__':
             )
         )
     )
-    print(write_cells_to(
+    print(
+        write_cells_to(
             dest_spreadsheet_id,
             "Profile!K:K",
             "RAW",

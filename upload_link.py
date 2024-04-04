@@ -77,12 +77,12 @@ class UploadLink(Upload):
         data = self.data_from()
         self.clear_data_on_sheet()
         return gspread_service().spreadsheets().values().batchUpdate(
-                spreadsheetId=getenv("GOOGLE_SHEET_ID_SRC"),
-                body={
-                    'valueInputOption': 'USER_ENTERED',
-                    'data': data,
-                },
-            ).execute(),
+            spreadsheetId=getenv("GOOGLE_SHEET_ID_SRC"),
+            body={
+                'valueInputOption': 'USER_ENTERED',
+                'data': data,
+            },
+        ).execute(),
 
     def clear_data_on_sheet(self):
         return gspread_service().spreadsheets().values().batchClear(
@@ -115,7 +115,7 @@ class UploadLink(Upload):
         if 'username_twitter' in row and row['username_twitter']:
             return f'=hyperlink("https://twitter.com/{row["username_twitter"]}"; "@{row["username_twitter"]}")'
         return ''
-    
+
     @staticmethod
     def cell_username_instagram_from(row):
         if 'username_instagram' in row and row['username_instagram']:

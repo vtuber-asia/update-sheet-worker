@@ -21,9 +21,13 @@ class UploadTwitter(Upload):
                 if len(rows) > 0:
                     cells.append(UploadTwitter.map_to_cell_from(rows[0]))
                 else:
-                    cells.append(['', '', '', '', '', '', '', '', '', '', '', ''])
+                    cells.append(
+                        ['', '', '', '', '', '', '', '', '', '', '', '']
+                    )
             else:
-                cells.append(['', '', '', '', '', '', '', '', '', '', '', ''])
+                cells.append(
+                    ['', '', '', '', '', '', '', '', '', '', '', '']
+                )
         return [
             {
                 'range': getenv('GOOGLE_SHEET_RANGE_SRC_DATA'),
@@ -34,7 +38,7 @@ class UploadTwitter(Upload):
                 'values': list(map(UploadTwitter.map_to_cell_with_xlookup_from, from_csv))
             }
         ]
-    
+
     @staticmethod
     def map_to_cell_from(row) -> list:
         return [
@@ -51,7 +55,7 @@ class UploadTwitter(Upload):
             UploadTwitter.cell_possible_sensitive_from(row),
             UploadTwitter.cell_timestamp_from(row),
         ]
-    
+
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
         return [
@@ -68,82 +72,82 @@ class UploadTwitter(Upload):
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$B$3:$B)',
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$C$3:$C)',
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("@{
+                row["username"]
+            }";Profile!$J$3:$J;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadTwitter.cell_is_verified_from(row),
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$D$3:$D)',
             UploadTwitter.cell_timestamp_from(row),
         ]
-    
+
     @staticmethod
     def cell_username_from(row):
         if 'username' in row and row['username']:
             return f'=hyperlink("https://twitter.com/{row["username"].lower()}"; "@{row["username"]}")'
         return ''
-    
+
     @staticmethod
     def cell_name_from(row):
         if 'name' in row and row['name'] and 'username' in row and row['username']:
             return f'=hyperlink("https://twitter.com/{row["username"].lower()}"; "{row["name"]}")'
         return ''
-    
+
     @staticmethod
     def cell_is_verified_from(row):
         if 'is_verified' in row and row['is_verified'] and row['is_verified'].lower() == 'true':
             return f'=image("{getenv("TWITTER_BLUE_BADGE_URL")}"; 4; 20; 20)'
         return ''
-    
+
     @staticmethod
     def cell_profile_image_url_from(row):
         if 'profile_image_url' in row and row['profile_image_url']:
             return f'=image("{row["profile_image_url"]}")'
         return ''
-    
+
     @staticmethod
     def cell_banner_image_url_from(row):
         if 'banner_image_url' in row and row['banner_image_url']:
             return f'=image("{row["banner_image_url"]}"; 4; 50; 150)'
         return ''
-    
+
     @staticmethod
     def cell_favorites_count_from(row):
         if 'favorites_count' in row and row['favorites_count']:
             return row['favorites_count']
         return ''
-    
+
     @staticmethod
     def cell_followers_count_from(row):
         if 'followers_count' in row and row['followers_count']:
             return row['followers_count']
         return ''
-    
+
     @staticmethod
     def cell_following_count_from(row):
         if 'following_count' in row and row['following_count']:
             return row['following_count']
         return ''
-    
+
     @staticmethod
     def cell_media_count_from(row):
         if 'media_count' in row and row['media_count']:
             return row['media_count']
         return ''
-    
+
     @staticmethod
     def cell_tweets_count_from(row):
         if 'tweets_count' in row and row['tweets_count']:
             return row['tweets_count']
         return ''
-    
+
     @staticmethod
     def cell_possible_sensitive_from(row):
         if 'possible_sensitive' in row and row['possible_sensitive'] and row['possible_sensitive'].lower() == 'true':
             return '✔️'
         return ''
-    
+
     @staticmethod
     def cell_timestamp_from(row):
         if 'timestamp' in row and row['timestamp']:
             return row['timestamp']
         return ''
-    
-    

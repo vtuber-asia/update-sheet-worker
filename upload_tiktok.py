@@ -64,7 +64,9 @@ class UploadTikTok(Upload):
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$B$3:$B)',
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$C$3:$C)',
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("@{
+                row["username"]
+            }";Profile!$H$3:$H;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadTikTok.cell_is_verified_from(row),
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$D$3:$D)',
             UploadTikTok.cell_timestamp_from(row),
@@ -75,7 +77,7 @@ class UploadTikTok(Upload):
         if 'username' in row and row['username']:
             return f'=hyperlink("https://tiktok.com/@{row["username"]}"; "@{row["username"]}")'
         return ''
-    
+
     @staticmethod
     def cell_user_id_from(row):
         if 'user_id' in row:
@@ -87,13 +89,13 @@ class UploadTikTok(Upload):
         if 'channel_title' in row and row['channel_title'] and 'username' in row and row['username']:
             return f'=hyperlink("https://tiktok.com/@{row["username"]}"; "{row["channel_title"]}")'
         return ''
-    
+
     @staticmethod
     def cell_is_verified_from(row):
         if 'is_verified' in row and row['is_verified'].lower() == 'true':
             return f'=image("{getenv("TIKTOK_VERIFIED_URL")}"; 4; 20; 20)'
         return ''
-    
+
     @staticmethod
     def cell_profile_image_url_from(row):
         if 'profile_image_url' in row:
@@ -105,19 +107,19 @@ class UploadTikTok(Upload):
         if 'followers_count' in row:
             return row['followers_count']
         return ''
-    
+
     @staticmethod
     def cell_following_count_from(row):
         if 'following_count' in row:
             return row['following_count']
         return ''
-    
+
     @staticmethod
     def cell_hearts_count_from(row):
         if 'hearts_count' in row:
             return row['hearts_count']
         return ''
-    
+
     @staticmethod
     def cell_videos_count_from(row):
         if 'videos_count' in row:
@@ -129,5 +131,3 @@ class UploadTikTok(Upload):
         if 'timestamp' in row:
             return row['timestamp']
         return ''
-
-    

@@ -12,7 +12,7 @@ class UploadInstagram(Upload):
         return [
             'Instagram!A3:M',
         ]
-    
+
     def data_from(self) -> list:
         username = Instagram(self.session, self.logger).fetch_username_cells()
         with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
@@ -39,7 +39,7 @@ class UploadInstagram(Upload):
                 'values': list(map(UploadInstagram.map_to_cell_with_xlookup_from, from_csv))
             }
         ]
-    
+
     @staticmethod
     def map_to_cell_from(row) -> list:
         return [
@@ -52,7 +52,7 @@ class UploadInstagram(Upload):
             UploadInstagram.cell_post_count_from(row),
             UploadInstagram.cell_timestamp_from(row),
         ]
-    
+
     @staticmethod
     def map_to_cell_with_xlookup_from(row) -> list:
         return [
@@ -62,57 +62,67 @@ class UploadInstagram(Upload):
             UploadInstagram.cell_followers_count_from(row),
             UploadInstagram.cell_following_count_from(row),
             UploadInstagram.cell_post_count_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$B$3:$B)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$C$3:$C)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$E$3:$E)',
-            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$F$3:$F)',
+            f'=XLOOKUP("@{
+                row["username"]
+            }";Summary!$BM$3:$BM;Summary!$B$3:$B)',
+            f'=XLOOKUP("@{
+                row["username"]
+            }";Summary!$BM$3:$BM;Summary!$C$3:$C)',
+            f'=XLOOKUP("@{
+                row["username"]
+            }";Summary!$BM$3:$BM;Summary!$E$3:$E)',
+            f'=XLOOKUP("@{
+                row["username"]
+            }";Summary!$BM$3:$BM;Summary!$F$3:$F)',
             UploadInstagram.cell_is_verified_from(row),
-            f'=XLOOKUP("@{row["username"]}";Summary!$BM$3:$BM;Summary!$D$3:$D)',
+            f'=XLOOKUP("@{
+                row["username"]
+            }";Summary!$BM$3:$BM;Summary!$D$3:$D)',
             UploadInstagram.cell_timestamp_from(row),
         ]
-    
+
     @staticmethod
     def cell_username_from(row) -> str:
         if 'username' in row:
             return f'=hyperlink("https://instagram.com/{row["username"]}"; "@{row["username"]}")'
         return ''
-    
+
     @staticmethod
     def cell_name_from(row) -> str:
         if 'name' in row and 'username' in row:
             return f'=hyperlink("https://instagram.com/{row["username"]}"; "{row["name"]}")'
         return ''
-    
+
     @staticmethod
     def cell_is_verified_from(row):
         if 'is_verified' in row and row['is_verified'] and row['is_verified'].lower() == 'true':
             return f'=image("{os.getenv("TWITTER_BLUE_BADGE_URL")}"; 4; 20; 20)'
         return ''
-    
+
     @staticmethod
     def cell_profile_image_url_from(row):
         if 'profile_image_url' in row and row['profile_image_url']:
             return f'=image("{row["profile_image_url"]}")'
         return ''
-    
+
     @staticmethod
     def cell_followers_count_from(row):
         if 'followers_count' in row:
             return row['followers_count']
         return ''
-    
+
     @staticmethod
     def cell_following_count_from(row):
         if 'following_count' in row:
             return row['following_count']
         return ''
-    
+
     @staticmethod
     def cell_post_count_from(row):
         if 'post_count' in row:
             return row['post_count']
         return ''
-    
+
     @staticmethod
     def cell_timestamp_from(row):
         if 'timestamp' in row:

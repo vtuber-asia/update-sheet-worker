@@ -56,7 +56,9 @@ class UploadTwitch(Upload):
             f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$B$3:$B)',
             f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$C$3:$C)',
             f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("@{
+                row["username"]
+            }";Profile!$G$3:$G;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             f'=XLOOKUP("@{row["username"]}";Profile!$G$3:$G;Profile!$D$3:$D)',
             UploadTwitch.cell_timestamp_from(row),
         ]

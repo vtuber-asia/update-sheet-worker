@@ -22,18 +22,18 @@ class Upload:
                 spreadsheetId=getenv("GOOGLE_SHEET_ID_SRC"),
                 body={
                     'valueInputOption': 'USER_ENTERED',
-                    'data': [ data[0] ],
+                    'data': [data[0]],
                 },
             ).execute(),
             gspread_service().spreadsheets().values().batchUpdate(
                 spreadsheetId=getenv("GOOGLE_SHEET_ID_DEST"),
                 body={
                     'valueInputOption': 'USER_ENTERED',
-                    'data': [ data[1] ],
+                    'data': [data[1]],
                 },
             ).execute()
         ]
-    
+
     def clear_data_on_sheet(self):
         return gspread_service().spreadsheets().values().batchClear(
             spreadsheetId=getenv("GOOGLE_SHEET_ID_DEST"),
