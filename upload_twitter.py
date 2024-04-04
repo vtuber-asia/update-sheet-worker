@@ -3,9 +3,6 @@ from csv import DictReader
 
 from content_platform import ContentPlatform
 from twitter import Twitter
-from account_models import TwitterAccount
-from metric_models import TwitterMetric
-import uuid
 from os import getenv
 
 
@@ -37,45 +34,6 @@ class UploadTwitter(Upload):
                 'values': list(map(UploadTwitter.map_to_cell_with_xlookup_from, from_csv))
             }
         ]
-    
-    def save_on_db(self):
-        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-            from_csv = list(DictReader(csvfile))
-            csvfile.close()
-        for row in from_csv:
-            twitter_metric = TwitterMetric()
-            twitter_metric.id = str(uuid.uuid4())
-            twitter_metric.account_id = row['user_id']
-            twitter_metric.followers_count = row['followers_count']
-            twitter_metric.followings_count = row['following_count']
-            twitter_metric.medias_count = row['media_count']
-            twitter_metric.tweets_count = row['tweets_count']
-            twitter_metric.favorites_count = row['favorites_count']
-            twitter_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
-            twitter_metric.save(force_insert=True)
-            twitter_account = TwitterAccount()
-            twitter_account.insert(
-                account_id=row['user_id'],
-                username=row['username'],
-                title=row['name'],
-                is_verified=row['is_verified'].lower() == 'true',
-                profile_image_url=row['profile_image_url'],
-                banner_image_url=row['banner_image_url'],
-                is_sensitive=row['possible_sensitive'].lower() == 'true',
-                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                id=str(uuid.uuid4()),
-            ).on_conflict(
-                preserve=[
-                    TwitterAccount.username, 
-                    TwitterAccount.title, 
-                    TwitterAccount.is_verified,
-                    TwitterAccount.profile_image_url, 
-                    TwitterAccount.banner_image_url,
-                    TwitterAccount.is_sensitive,
-                    TwitterAccount.updated_at
-                ]
-            ).execute()
     
     @staticmethod
     def map_to_cell_from(row) -> list:

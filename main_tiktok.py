@@ -14,7 +14,6 @@ if __name__ == "__main__":
     tiktok_csv = tiktok.create_csv()
     upload_tiktok = UploadTikTok(tiktok_csv, session, logger)
     logger.info(upload_tiktok.upload())
-    upload_tiktok.save_on_db()
     del tiktok
     del tiktok_csv
     del upload_tiktok

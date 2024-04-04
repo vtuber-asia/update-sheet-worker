@@ -15,7 +15,6 @@ if __name__ == "__main__":
     youTube_csv = youTube.create_csv()
     upload_youtube = UploadYouTube(youTube_csv, session, logger)
     logger.info(upload_youtube.upload())
-    upload_youtube.save_on_db()
     upload_link = UploadLink(youTube_csv, session, logger)
     logger.info(upload_link.upload())
     del youTube

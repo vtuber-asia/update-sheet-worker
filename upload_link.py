@@ -71,10 +71,7 @@ class UploadLink(Upload):
                 'values': list(map(lambda username: [UploadLink.cell_username_instagram_from(username)], instagram_usernames))
             }
         ]
-    
-    def save_on_db(self):
-        return super().save_on_db()
-    
+
     def upload(self):
         self.logger.info(f"Uploading {self.csv_filename} to Google Sheet ...")
         data = self.data_from()

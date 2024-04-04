@@ -3,9 +3,6 @@ from csv import DictReader
 
 from youtube import YouTube
 from content_platform import ContentPlatform
-from account_models import YouTubeAccount
-from metric_models import YouTubeMetric
-import uuid
 from os import getenv
 
 
@@ -37,43 +34,6 @@ class UploadYouTube(Upload):
                 'values': list(map(UploadYouTube.map_to_cell_with_xlookup_from, from_csv_youtube_channels))
             }
         ]
-
-    def save_on_db(self):
-        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-            from_csv_youtube_channels = list(DictReader(csvfile))
-            csvfile.close()
-        for row in from_csv_youtube_channels:
-            youTube_metric = YouTubeMetric()
-            youTube_metric.id = str(uuid.uuid4())
-            youTube_metric.account_id = row['channel_id']
-            youTube_metric.subscribers_count = row['subscribers_count']
-            youTube_metric.videos_count = row['videos_count']
-            youTube_metric.views_count = row['views_count']
-            youTube_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
-            youTube_metric.save(force_insert=True)
-            youTube_account = YouTubeAccount()
-            youTube_account.insert(
-                account_id=row['channel_id'],
-                username=row['username'],
-                title=row['channel_title'],
-                badge=UploadYouTube.db_badge_from(row),
-                is_membership_enabled=row['is_membership_active'].lower() == 'true',
-                profile_image_url=row['profile_image_url'],
-                banner_image_url=row['banner_image_url'],
-                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                id=str(uuid.uuid4()),
-            ).on_conflict(
-                preserve=[
-                    YouTubeAccount.username, 
-                    YouTubeAccount.title, 
-                    YouTubeAccount.badge,
-                    YouTubeAccount.is_membership_enabled,
-                    YouTubeAccount.profile_image_url,
-                    YouTubeAccount.banner_image_url,
-                    YouTubeAccount.updated_at
-                ]
-            ).execute()
 
     @staticmethod
     def map_to_cell_from(row) -> list:

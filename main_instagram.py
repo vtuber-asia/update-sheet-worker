@@ -14,7 +14,6 @@ if __name__ == "__main__":
     instagram_csv = instagram.create_csv()
     upload_instagram = UploadInstagram(instagram_csv, session, logger)
     logger.info(upload_instagram.upload())
-    upload_instagram.save_on_db()
     del instagram
     del instagram_csv
     del upload_instagram

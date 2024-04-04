@@ -34,9 +34,6 @@ class Upload:
             ).execute()
         ]
     
-    def save_on_db(self):
-        pass
-
     def clear_data_on_sheet(self):
         return gspread_service().spreadsheets().values().batchClear(
             spreadsheetId=getenv("GOOGLE_SHEET_ID_DEST"),

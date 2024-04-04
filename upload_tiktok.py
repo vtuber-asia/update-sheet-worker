@@ -3,9 +3,6 @@ from csv import DictReader
 
 from content_platform import ContentPlatform
 from tiktok import TikTok
-from account_models import TikTokAccount
-from metric_models import TikTokMetric
-import uuid
 from os import getenv
 
 
@@ -37,40 +34,6 @@ class UploadTikTok(Upload):
                 'values': list(map(UploadTikTok.map_to_cell_with_xlookup_from, from_csv_tiktok_channels))
             }
         ]
-    
-    def save_on_db(self):
-        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-            from_csv_tiktok_channels = list(DictReader(csvfile))
-            csvfile.close()
-        for row in from_csv_tiktok_channels:
-            tiktok_metric = TikTokMetric()
-            tiktok_metric.id = str(uuid.uuid4())
-            tiktok_metric.account_id = row['user_id']
-            tiktok_metric.followers_count = row['followers_count']
-            tiktok_metric.followings_count = row['following_count']
-            tiktok_metric.likes_count = row['hearts_count']
-            tiktok_metric.videos_count = row['videos_count']
-            tiktok_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
-            tiktok_metric.save(force_insert=True)
-            tiktok_account = TikTokAccount()
-            tiktok_account.insert(
-                account_id=row['user_id'],
-                username=row['username'],
-                title=row['channel_title'],
-                is_verified=row['is_verified'].lower() == 'true',
-                profile_image_url=row['profile_image_url'],
-                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                id=str(uuid.uuid4()),
-            ).on_conflict(
-                preserve=[
-                    TikTokAccount.username, 
-                    TikTokAccount.title, 
-                    TikTokAccount.is_verified, 
-                    TikTokAccount.profile_image_url, 
-                    TikTokAccount.updated_at
-                ]
-            ).execute()
 
     @staticmethod
     def map_to_cell_from(row) -> list:

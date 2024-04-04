@@ -2,9 +2,6 @@ from upload import Upload
 from csv import DictReader
 from content_platform import ContentPlatform
 from twitch import Twitch
-from account_models import TwitchAccount
-from metric_models import TwitchMetric
-import uuid
 from os import getenv
 
 
@@ -36,35 +33,6 @@ class UploadTwitch(Upload):
                 'values': list(map(UploadTwitch.map_to_cell_with_xlookup_from, from_csv_twitch_channels))
             }
         ]
-
-    def save_on_db(self):
-        with open(self.csv_filename, 'r', newline='', encoding='utf-8') as csvfile:
-            from_csv_twitch_channels = list(DictReader(csvfile))
-            csvfile.close()
-        for row in from_csv_twitch_channels:
-            twitch_metric = TwitchMetric()
-            twitch_metric.id = str(uuid.uuid4())
-            twitch_metric.account_id = row['broadcast_id']
-            twitch_metric.followers_count = row['followers_count']
-            twitch_metric.created_at = f"{row['timestamp']}{getenv('UTC_OFFSET')}"
-            twitch_metric.save(force_insert=True)
-            twitch_account = TwitchAccount()
-            twitch_account.insert(
-                account_id=row['broadcast_id'],
-                username=row['username'],
-                title=row['channel_title'],
-                profile_image_url=row['profile_image_url'],
-                created_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                updated_at=f"{row['timestamp']}{getenv('UTC_OFFSET')}",
-                id=str(uuid.uuid4()),
-            ).on_conflict(
-                preserve=[
-                    TwitchAccount.username, 
-                    TwitchAccount.title, 
-                    TwitchAccount.profile_image_url,
-                    TwitchAccount.updated_at
-                ],
-            ).execute()
 
     @staticmethod
     def map_to_cell_from(row) -> list:
