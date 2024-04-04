@@ -40,7 +40,7 @@ jobs:
         GOOGLE_SHEET_RANGE_DEST: ${{ vars.BS_GOOGLE_SHEET_RANGE_DEST }}
         BILIBILI_VERIFIED_URL: ${{ vars.BS_BILIBILI_VERIFIED_URL }}
       run: |
-        mkdir -p csv/id && cd csv/id
+        mkdir -p csv/id/outputs && cd csv/id
         python ../../main_bilibili.py
         cd ..
     - uses: actions/upload-artifact@v3

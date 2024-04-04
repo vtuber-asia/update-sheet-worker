@@ -35,7 +35,7 @@ jobs:
         GOOGLE_SHEET_ID_SRC: ${{ secrets.ID_GOOGLE_SHEET_SRC }}
         GOOGLE_SHEET_ID_DEST: ${{ secrets.ID_GOOGLE_SHEET_DEST }}
       run: |
-        mkdir -p csv/id && cd csv/id
+        mkdir -p csv/id/outputs && cd csv/id
         python ../../copy_profile.py
         cd ..
     - uses: actions/upload-artifact@v3

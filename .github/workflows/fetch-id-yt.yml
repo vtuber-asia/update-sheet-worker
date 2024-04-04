@@ -44,7 +44,7 @@ jobs:
         GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE }}
         GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE }}
       run: |
-        mkdir -p csv/id && cd csv/id
+        mkdir -p csv/id/outputs && cd csv/id
         python ../../main_youtube.py
         cd ..
     - uses: actions/upload-artifact@v3

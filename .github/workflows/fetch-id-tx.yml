@@ -43,7 +43,7 @@ jobs:
         TWITTER_API_TRANSACTION_ID: ${{ secrets.TWITTER_API_TRANSACTION_ID }}
         TWITTER_BLUE_BADGE_URL: ${{ vars.TX_TWITTER_BLUE_BADGE_URL }}
       run: |
-        mkdir -p csv/id && cd csv/id
+        mkdir -p csv/id/outputs && cd csv/id
         python ../../main_twitter.py
         cd ..
     - uses: actions/upload-artifact@v3
