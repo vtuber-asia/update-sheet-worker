@@ -6,7 +6,7 @@ name: ID - Bstation
 on:
   workflow_dispatch:
   schedule:
-    - cron: "00 3/6 * * *"
+    - cron: "40 0/6 * * *"
   
 permissions:
   contents: read

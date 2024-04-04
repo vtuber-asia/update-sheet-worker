@@ -6,7 +6,7 @@ name: ID - Twitch
 on:
   workflow_dispatch: 
   schedule:
-    - cron: "00 1/6 * * *"
+    - cron: "20 1/6 * * *"
   
 permissions:
   contents: read
