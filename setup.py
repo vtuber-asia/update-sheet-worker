@@ -6,7 +6,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 
-def setup(package_name: str, log_level: int) -> tuple[Session, Logger]:
+def setup(package_name: str, log_level: int) -> (Session, Logger): # type: ignore
     logging.basicConfig(
         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
         datefmt='%H:%M:%S',

@@ -72,9 +72,7 @@ class UploadTwitter(Upload):
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$B$3:$B)',
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$C$3:$C)',
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{
-                row["username"]
-            }";Profile!$J$3:$J;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadTwitter.cell_is_verified_from(row),
             f'=XLOOKUP("@{row["username"]}";Profile!$J$3:$J;Profile!$D$3:$D)',
             UploadTwitter.cell_timestamp_from(row),

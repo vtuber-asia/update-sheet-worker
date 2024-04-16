@@ -64,9 +64,7 @@ class UploadTikTok(Upload):
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$B$3:$B)',
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$C$3:$C)',
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{
-                row["username"]
-            }";Profile!$H$3:$H;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadTikTok.cell_is_verified_from(row),
             f'=XLOOKUP("@{row["username"]}";Profile!$H$3:$H;Profile!$D$3:$D)',
             UploadTikTok.cell_timestamp_from(row),

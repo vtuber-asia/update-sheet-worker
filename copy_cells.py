@@ -32,7 +32,7 @@ def write_cells_to(spreadsheet_id: str, ranges: str, input_opt: str, values: lis
     ).execute()
 
 
-def from_prompt() -> dict[str: str]:
+def from_prompt() -> dict:
     questions = [
         Text(
             'source_spreadsheet_id',
@@ -73,7 +73,7 @@ def from_prompt() -> dict[str: str]:
     return prompt(questions)
 
 
-def from_env() -> dict[str: str]:
+def from_env() -> dict:
     return {
         'dest_spreadsheet_id': getenv('DEST_SPREADSHEET_ID'),
         'dest_range': getenv('DEST_RANGE'),
@@ -85,7 +85,7 @@ def from_env() -> dict[str: str]:
 
 
 if __name__ == '__main__':
-    answers: dict[str: str] = {}
+    answers: dict = {}
     if getenv('USING_ENVIRONMENT') is None:
         answers = from_prompt()
     else:

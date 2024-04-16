@@ -10,7 +10,7 @@ from utils import value_to_float
 
 class Bilibili(ContentPlatform):
 
-    def fetch_user(self, username: str) -> dict | None:
+    def fetch_user(self, username: str) -> dict:
         username = ContentPlatform.remove_handler_from(username)
         url = f'https://www.bilibili.tv/en/space/{username}'
         self.logger.info(f"Fetching Bilibili channel info for @{username}")
@@ -43,9 +43,7 @@ class Bilibili(ContentPlatform):
             return None
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{
-            datetime.now().strftime("%Y%m%d%H%M%S")
-        }_bilibili.csv'
+        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_bilibili.csv'
         fields = [
             'user_id',
             'channel_title',

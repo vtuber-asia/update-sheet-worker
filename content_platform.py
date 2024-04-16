@@ -12,7 +12,7 @@ class ContentPlatform:
         self.session = session
         self.logger = logger
 
-    def fetch_user(self, username: str) -> dict | None:
+    def fetch_user(self, username: str) -> dict:
         pass
 
     def fetch_username_cells(self) -> list:
@@ -62,7 +62,7 @@ class ContentPlatform:
         return url
 
     @staticmethod
-    def parse_username_from(url, platform=None) -> str | None:
+    def parse_username_from(url, platform=None) -> str:
         filtered_segments = list(
             filter(
                 lambda s: s != '' and s != extract(url).fqdn,

@@ -67,9 +67,7 @@ class UploadYouTube(Upload):
             f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$B$3:$B)',
             f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$C$3:$C)',
             f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("{
-                row["channel_id"]
-            }";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             f'=XLOOKUP("{row["channel_id"]}";Profile!$F$3:$F;Profile!$D$3:$D)',
             UploadYouTube.cell_timestamp_from(row),
         ]

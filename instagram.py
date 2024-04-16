@@ -28,7 +28,7 @@ class Instagram(ContentPlatform):
             return list(map(ContentPlatform.cells_on, response['values']))
         return []
 
-    def fetch_user(self, username: str) -> dict | None:
+    def fetch_user(self, username: str) -> dict:
         username = ContentPlatform.remove_handler_from(username)
         self.logger.info(f"Fetching Instagram user info for @{username}")
         try:
@@ -59,7 +59,7 @@ class Instagram(ContentPlatform):
                 f"Error fetching Instagram account info for @{username}, code : {response.status_code}: {e}, retrying ...")
         return None
 
-    def __fetch_user(self, username: str) -> dict | None:
+    def __fetch_user(self, username: str) -> dict:
         username = ContentPlatform.remove_handler_from(username)
         self.logger.info(f"Fetching Instagram user info for @{username}")
         try:

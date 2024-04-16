@@ -14,7 +14,7 @@ class Twitter(ContentPlatform):
         super().__init__(session, logger)
         self.guest_token = None
 
-    def fetch_user(self, username: str) -> dict | None:
+    def fetch_user(self, username: str) -> dict:
         username = ContentPlatform.remove_handler_from(username)
         self.logger.info(f"Fetching Twitter user info for @{username}")
         if self.guest_token is None:
@@ -66,9 +66,7 @@ class Twitter(ContentPlatform):
         return None
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{
-            datetime.now().strftime("%Y%m%d%H%M%S")
-        }_twitter.csv'
+        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_twitter.csv'
         fields = [
             'username',
             'user_id',

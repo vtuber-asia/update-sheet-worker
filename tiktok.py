@@ -7,7 +7,7 @@ from content_platform import ContentPlatform
 
 class TikTok(ContentPlatform):
 
-    def fetch_user(self, username: str) -> dict | None:
+    def fetch_user(self, username: str) -> dict:
         username = ContentPlatform.remove_handler_from(username)
         url = f'https://www.tiktok.com/@{username}'
         self.logger.info(f"Fetching TikTok channel info for @{username}")
@@ -43,16 +43,12 @@ class TikTok(ContentPlatform):
             return None
         except Exception as e:
             self.logger.error(
-                f"Error fetching TikTok channel info for @{
-                    username
-                }, code : {e}"
+                f"Error fetching TikTok channel info for @{username}, code : {e}"
             )
             return None
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{
-            datetime.now().strftime("%Y%m%d%H%M%S")
-        }_tiktok.csv'
+        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_tiktok.csv'
         fields = [
             'username',
             'user_id',

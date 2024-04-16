@@ -7,7 +7,7 @@ from utils import split
 
 class Twitch(ContentPlatform):
 
-    def fetch_user(self, username: str) -> dict | None:
+    def fetch_user(self, username: str) -> dict:
         username = ContentPlatform.remove_handler_from(
             username)  # broadcast_id
         self.logger.info(f"Fetching Twitch channel info for @{username}")
@@ -21,9 +21,7 @@ class Twitch(ContentPlatform):
         ).json()
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{
-            datetime.now().strftime("%Y%m%d%H%M%S")
-        }_twitch.csv'
+        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_twitch.csv'
         fields = [
             'username',
             'broadcast_id',

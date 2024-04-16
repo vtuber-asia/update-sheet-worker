@@ -11,7 +11,7 @@ from utils import split
 
 class YouTube(ContentPlatform):
 
-    def fetch_user(self, username: str) -> dict | None:
+    def fetch_user(self, username: str) -> dict:
         username = ContentPlatform.remove_handler_from(username)
         url = f'https://www.youtube.com/channel/{username}/about'
         self.logger.info(f'Fetching YouTube channel info for @{username} ...')
@@ -49,9 +49,7 @@ class YouTube(ContentPlatform):
         }
 
     def create_csv(self) -> str:
-        csv_filename = f'./outputs/{
-            datetime.now().strftime("%Y%m%d%H%M%S")
-        }_youtube.csv'
+        csv_filename = f'./outputs/{datetime.now().strftime("%Y%m%d%H%M%S")}_youtube.csv'
         fields = [
             'username',
             'channel_id',
@@ -121,7 +119,7 @@ class YouTube(ContentPlatform):
             csvfile.close()
         return csv_filename
 
-    def __youtube_channel_from_url(self, url) -> (dict | None, dict | None):
+    def __youtube_channel_from_url(self, url) -> (dict, dict): # type: ignore
         try:
             header, data = self.__tabs_data_from(url)
             return header, data
@@ -129,7 +127,7 @@ class YouTube(ContentPlatform):
             self.logger.error(e)
             return None, None
 
-    def __tabs_data_from(self, url) -> dict | None:
+    def __tabs_data_from(self, url) -> dict:
         try:
             page = self.session.get(
                 url,
@@ -164,19 +162,19 @@ class YouTube(ContentPlatform):
         ).execute()
 
     @staticmethod
-    def channel_id_on(youtube_channel) -> str | None:
+    def channel_id_on(youtube_channel) -> str:
         if 'channelId' in youtube_channel:
             return youtube_channel['channelId']
         return None
 
     @staticmethod
-    def channel_title_on(youtube_channel) -> str | None:
+    def channel_title_on(youtube_channel) -> str:
         if 'title' in youtube_channel:
             return youtube_channel['title']
         return None
 
     @staticmethod
-    def badges_on(youtube_channel) -> str | None:
+    def badges_on(youtube_channel) -> str:
         if 'badges' not in youtube_channel:
             return None
 
@@ -191,13 +189,13 @@ class YouTube(ContentPlatform):
         return '+'.join(items)
 
     @staticmethod
-    def is_membership_active_on(youtube_channel) -> str | None:
+    def is_membership_active_on(youtube_channel) -> str:
         if 'sponsorButton' in youtube_channel:
             return True
         return False
 
     @staticmethod
-    def profile_image_url_on(youtube_channel) -> str | None:
+    def profile_image_url_on(youtube_channel) -> str:
         if 'avatar' in youtube_channel and \
             'thumbnails' in youtube_channel['avatar'] and \
                 len(youtube_channel['avatar']['thumbnails']) > 0:
@@ -205,7 +203,7 @@ class YouTube(ContentPlatform):
         return None
 
     @staticmethod
-    def banner_image_url_on(youtube_channel) -> str | None:
+    def banner_image_url_on(youtube_channel) -> str:
         if 'banner' in youtube_channel and \
             'thumbnails' in youtube_channel['banner'] and \
                 len(youtube_channel['banner']['thumbnails']) > 0:

@@ -60,9 +60,7 @@ class UploadBilibili(Upload):
             f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$B$3:$B)',
             f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$C$3:$C)',
             f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$E$3:$E)',
-            f'=XLOOKUP(XLOOKUP("@{
-                row["user_id"]
-            }";Profile!$I$3:$I;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
+            f'=XLOOKUP(XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$E$3:$E);Groups!$C$3:$C;Groups!$B$3:$B)',
             UploadBilibili.cell_is_verified_from(row),
             f'=XLOOKUP("@{row["user_id"]}";Profile!$I$3:$I;Profile!$D$3:$D)',
             UploadBilibili.cell_timestamp_from(row),
