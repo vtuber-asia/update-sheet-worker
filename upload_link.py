@@ -75,6 +75,8 @@ class UploadLink(Upload):
     def upload(self):
         self.logger.info(f"Uploading {self.csv_filename} to Google Sheet ...")
         data = self.data_from()
+        if self.is_empty_data(data):
+            return f"Data on {self.csv_filename} is empty, upload canceled."
         self.clear_data_on_sheet()
         return gspread_service().spreadsheets().values().batchUpdate(
             spreadsheetId=getenv("GOOGLE_SHEET_ID_SRC"),
@@ -82,7 +84,7 @@ class UploadLink(Upload):
                 'valueInputOption': 'USER_ENTERED',
                 'data': data,
             },
-        ).execute(),
+        ).execute()
 
     def clear_data_on_sheet(self):
         return gspread_service().spreadsheets().values().batchClear(
