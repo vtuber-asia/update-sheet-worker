@@ -1,7 +1,7 @@
 from csv import DictReader
 from os import getenv
 from content_platform import ContentPlatform
-from upload import Upload
+from upload import TryingToUploadEmptySheet, Upload
 from youtube import YouTube
 from gservices import gspread_service
 
@@ -76,7 +76,7 @@ class UploadLink(Upload):
         self.logger.info(f"Uploading {self.csv_filename} to Google Sheet ...")
         data = self.data_from()
         if self.is_empty_data(data):
-            return f"Data on {self.csv_filename} is empty, upload canceled."
+            raise TryingToUploadEmptySheet(f"Data on {self.csv_filename} is empty, upload canceled.")
         self.clear_data_on_sheet()
         return gspread_service().spreadsheets().values().batchUpdate(
             spreadsheetId=getenv("GOOGLE_SHEET_ID_SRC"),

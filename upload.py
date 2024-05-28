@@ -17,7 +17,7 @@ class Upload:
         self.logger.info(f"Uploading {self.csv_filename} to Google Sheet ...")
         data = self.data_from()
         if self.is_empty_data(data):
-            return f"Data on {self.csv_filename} is empty, upload canceled."
+            raise TryingToUploadEmptySheet(f"Data on {self.csv_filename} is empty, upload canceled.")
         self.clear_data_on_sheet()
         return [
             gspread_service().spreadsheets().values().batchUpdate(
@@ -55,3 +55,7 @@ class Upload:
     def is_empty_data(self, data: list) -> bool:
         return len([item for item in data[0]['values'][0] if item == '']) == len(data[0]['values'][0]) \
             and len([item for item in data[0]['values'] if item == data[0]['values'][0]]) == len(data[0]['values'])
+
+
+class TryingToUploadEmptySheet(Exception):
+    pass
