@@ -1,11 +1,14 @@
 import json
 from csv import DictReader, DictWriter
 from datetime import datetime
+import logging
+from time import sleep
 
 from lxml import html
 
 from content_platform import ContentPlatform
 from gservices import youtube_service
+from setup import setup
 from utils import split
 
 
@@ -129,7 +132,7 @@ class YouTube(ContentPlatform):
             self.logger.error(e)
             return None, None
 
-    def __tabs_data_from(self, url) -> dict | None:
+    def __tabs_data_from(self, url, retry: int = 5) -> dict | None:
         try:
             page = self.session.get(
                 url,
@@ -144,10 +147,14 @@ class YouTube(ContentPlatform):
                 '//script[contains(., "ytInitialData")]/text()')[0]
             data = json.loads(
                 js_text[js_text.find('{'):js_text.rfind('}') + 1])
-            tabs = data['contents']['twoColumnBrowseResultsRenderer']['tabs']
             return data['header']['c4TabbedHeaderRenderer'], data
         except Exception as e:
             self.logger.error(e)
+            if isinstance(e, KeyError) and len(e.args) == 1 and e.args[0] == 'c4TabbedHeaderRenderer' and retry > 0:
+                sleep(5)
+                retry_left = retry - 1
+                self.session, self.logger = setup(f"id.bungamungil.vtuber-asia-v3.main._{retry_left}-retry-left", logging.DEBUG)
+                return self.__tabs_data_from(url, retry_left)
             return None, None
 
     @staticmethod
