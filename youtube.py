@@ -80,6 +80,7 @@ class YouTube(ContentPlatform):
                 youtube_channel = self.fetch_user(username)
                 if youtube_channel is not None:
                     w.writerow(youtube_channel)
+                sleep(1)
             csvfile.close()
         with open(csv_filename, 'r', newline='', encoding='iso-8859-1') as csvfile:
             from_csv_youtube_channels = list(DictReader(csvfile))
