@@ -1,28 +1,17 @@
 from youtube import YouTube
 from datetime import datetime
 from csv import DictReader, DictWriter
-from gservices import gspread_service
-import os
 from content_platform import ContentPlatform
 from utils import split
 
 
 class YouTubeByChannelIds(YouTube):
 
-    def fetch_channel_id_cells(self) -> list:
-        response = gspread_service().spreadsheets().values().get(
-            spreadsheetId=os.getenv("GOOGLE_SHEET_ID"),
-            range="Summary!I3:I"
-        ).execute()
-        if 'values' in response:
-            return list(map(ContentPlatform.cells_on, response['values']))
-        return []
-
     def fetch_channel_ids(self) -> list:
         return list(
             filter(
                 lambda channel_id: channel_id is not None,
-                self.fetch_channel_id_cells()
+                self.fetch_username_cells()
             )
         )
 
