@@ -4,10 +4,10 @@
 name: TH - YouTube
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
   schedule:
     - cron: "00 5/8 * * *"
-  
+
 permissions:
   contents: read
 
@@ -16,39 +16,38 @@ jobs:
     runs-on: ubuntu-latest
     environment: public-sheet
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.12"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Load Credentials
-      run: |
-        mkdir -p credentials
-        echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_CONTENT }}' > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME }}
-    - name: Fetch data from 3rd party source
-      env:
-        SERVICE_ACCOUNT_FILE: ../../${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME}}
-        UTC_OFFSET: ${{ vars.UTC_OFFSET }}
-        GOOGLE_SHEET_ID_SRC: ${{ secrets.TH_GOOGLE_SHEET_SRC }}
-        GOOGLE_SHEET_ID_DEST: ${{ secrets.TH_GOOGLE_SHEET_DEST }}
-        GOOGLE_SHEET_RANGE_SRC_USERNAME: ${{ vars.YT_GOOGLE_SHEET_RANGE_SRC_USERNAME }}
-        GOOGLE_SHEET_RANGE_SRC_DATA: ${{ vars.YT_GOOGLE_SHEET_RANGE_SRC_DATA }}
-        GOOGLE_SHEET_RANGE_DEST: ${{ vars.YT_GOOGLE_SHEET_RANGE_DEST }}
-        GOOGLE_SHEET_RANGE_FOR_TWITCH_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_TWITCH_URL_FROM_YOUTUBE }}
-        GOOGLE_SHEET_RANGE_FOR_TIKTOK_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_TIKTOK_URL_FROM_YOUTUBE }}
-        GOOGLE_SHEET_RANGE_FOR_BILIBILI_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_BILIBILI_URL_FROM_YOUTUBE }}
-        GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE }}
-        GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE }}
-      run: |
-        mkdir -p csv/id/outputs && cd csv/id
-        python ../../main_youtube.py
-        cd ..
-    - uses: actions/upload-artifact@v4
-      with:
-        name: csv
-        path: csv/
-  
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Load Credentials
+        run: |
+          mkdir -p credentials
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_CONTENT }}' > ${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME }}
+      - name: Fetch data from 3rd party source
+        env:
+          SERVICE_ACCOUNT_FILE: ../../${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILENAME}}
+          UTC_OFFSET: ${{ vars.UTC_OFFSET }}
+          GOOGLE_SHEET_ID_SRC: ${{ secrets.TH_GOOGLE_SHEET_SRC }}
+          GOOGLE_SHEET_ID_DEST: ${{ secrets.TH_GOOGLE_SHEET_DEST }}
+          GOOGLE_SHEET_RANGE_SRC_USERNAME: ${{ vars.YT_GOOGLE_SHEET_RANGE_SRC_USERNAME }}
+          GOOGLE_SHEET_RANGE_SRC_DATA: ${{ vars.YT_GOOGLE_SHEET_RANGE_SRC_DATA }}
+          GOOGLE_SHEET_RANGE_DEST: ${{ vars.YT_GOOGLE_SHEET_RANGE_DEST }}
+          GOOGLE_SHEET_RANGE_FOR_TWITCH_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_TWITCH_URL_FROM_YOUTUBE }}
+          GOOGLE_SHEET_RANGE_FOR_TIKTOK_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_TIKTOK_URL_FROM_YOUTUBE }}
+          GOOGLE_SHEET_RANGE_FOR_BILIBILI_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_BILIBILI_URL_FROM_YOUTUBE }}
+          GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE }}
+          GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE: ${{ vars.YT_GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE }}
+        run: |
+          mkdir -p csv/id/outputs && cd csv/id
+          python ../../main_youtube_by_channel_id.py
+          cd ..
+      - uses: actions/upload-artifact@v4
+        with:
+          name: csv
+          path: csv/
