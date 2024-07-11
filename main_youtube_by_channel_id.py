@@ -2,8 +2,7 @@ import logging
 from datetime import datetime
 
 from setup import setup
-from upload_link import UploadLink
-from upload_youtube import UploadYouTube
+from upload_youtube_by_channel_ids import UploadYouTubeByChannelIds
 from youtube_by_channel_ids import YouTubeByChannelIds
 
 if __name__ == "__main__":
@@ -13,14 +12,11 @@ if __name__ == "__main__":
 
     youTube = YouTubeByChannelIds(session, logger)
     youTube_csv = youTube.create_csv()
-    upload_youtube = UploadYouTube(youTube_csv, session, logger)
+    upload_youtube = UploadYouTubeByChannelIds(youTube_csv, session, logger)
     logger.info(upload_youtube.upload())
-    upload_link = UploadLink(youTube_csv, session, logger)
-    logger.info(upload_link.upload())
     del youTube
     del youTube_csv
     del upload_youtube
-    del upload_link
 
     del session
 
