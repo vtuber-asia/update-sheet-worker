@@ -49,6 +49,28 @@
       }
     },
     {
+      "name": "YT:ID - ALT (DEV)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "main_youtube_by_channel_id.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "UTC_OFFSET": "+0700",
+        "GOOGLE_SHEET_ID_SRC": "1MWWxb0bjWO095XZAHp1aEGbg8i1lvD8-5zd5yfX2sDs",
+        "GOOGLE_SHEET_RANGE_SRC_USERNAME": "DataSource!G3:G",
+        "GOOGLE_SHEET_RANGE_SRC_DATA": "DataSource!H3:R",
+        "GOOGLE_SHEET_ID_DEST": "1GCdD5FV7ASnwITC7UX8URSjBTN2fKx4zszTI91xoSCg",
+        "GOOGLE_SHEET_RANGE_DEST": "YouTube!A3:P",
+        "SERVICE_ACCOUNT_FILE": "./credentials/vtuber-asia-38cafbfea5ef.json",
+        "GOOGLE_SHEET_RANGE_FOR_TWITCH_URL_FROM_YOUTUBE": "DataSource!S3:S",
+        "GOOGLE_SHEET_RANGE_FOR_TIKTOK_URL_FROM_YOUTUBE": "DataSource!AA3:AA",
+        "GOOGLE_SHEET_RANGE_FOR_BILIBILI_URL_FROM_YOUTUBE": "DataSource!AM3:AM",
+        "GOOGLE_SHEET_RANGE_FOR_TWITTER_URL_FROM_YOUTUBE": "DataSource!AW3:AW",
+        "GOOGLE_SHEET_RANGE_FOR_INSTAGRAM_URL_FROM_YOUTUBE": "DataSource!BK3:BK"
+      }
+    },
+    {
       "name": "TW:ID (DEV)",
       "type": "debugpy",
       "request": "launch",
