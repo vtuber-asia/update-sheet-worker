@@ -37,8 +37,8 @@ class YouTube(ContentPlatform):
             'username': username,
             'channel_id': YouTube.channel_id_on(youtube_channel),
             'channel_title': YouTube.channel_title_on(youtube_channel),
-            'badges': YouTube.badges_on(youtube_channel),
-            'is_membership_active': YouTube.is_membership_active_on(youtube_channel),
+            'badges': YouTube.badges_on(data),
+            'is_membership_active': YouTube.is_membership_active_on(data),
             'profile_image_url': YouTube.profile_image_url_on(youtube_channel),
             'banner_image_url': YouTube.banner_image_url_on(youtube_channel),
             'videos_count': 0,
@@ -148,10 +148,10 @@ class YouTube(ContentPlatform):
                 '//script[contains(., "ytInitialData")]/text()')[0]
             data = json.loads(
                 js_text[js_text.find('{'):js_text.rfind('}') + 1])
-            return data['header']['c4TabbedHeaderRenderer'], data
+            return data['metadata']['channelMetadataRenderer'], data
         except Exception as e:
             self.logger.error(e)
-            if isinstance(e, KeyError) and len(e.args) == 1 and e.args[0] == 'c4TabbedHeaderRenderer' and retry > 0:
+            if isinstance(e, KeyError) and len(e.args) == 1 and e.args[0] == 'channelMetadataRenderer' and retry > 0:
                 sleep(5)
                 retry_left = retry - 1
                 self.session, self.logger = setup(f"id.bungamungil.vtuber-asia-v3.main._{retry_left}-retry-left", logging.DEBUG)
@@ -173,8 +173,8 @@ class YouTube(ContentPlatform):
 
     @staticmethod
     def channel_id_on(youtube_channel) -> str | None:
-        if 'channelId' in youtube_channel:
-            return youtube_channel['channelId']
+        if 'externalId' in youtube_channel:
+            return youtube_channel['externalId']
         return None
 
     @staticmethod
@@ -184,23 +184,53 @@ class YouTube(ContentPlatform):
         return None
 
     @staticmethod
-    def badges_on(youtube_channel) -> str | None:
-        if 'badges' not in youtube_channel:
+    def badges_on(data) -> str | None:
+        if 'header' not in data:
             return None
-
-        def map_badge(badge):
-            if 'metadataBadgeRenderer' in badge and \
-                    'icon' in badge['metadataBadgeRenderer'] and \
-                    'iconType' in badge['metadataBadgeRenderer']['icon']:
-                return badge['metadataBadgeRenderer']['icon']['iconType']
+        if 'pageHeaderRenderer' not in data['header']:
             return None
-        items = list(filter(lambda x: x is not None, list(
-            map(map_badge, youtube_channel['badges']))))
-        return '+'.join(items)
+        if 'content' not in data['header']['pageHeaderRenderer']: 
+            return None
+        if 'pageHeaderViewModel' not in data['header']['pageHeaderRenderer']['content']:
+            return None
+        if 'title' not in data['header']['pageHeaderRenderer']['content']['pageHeaderViewModel']:
+            return None
+        if 'dynamicTextViewModel' not in data['header']['pageHeaderRenderer']['content']['pageHeaderViewModel']['title']:
+            return None
+        if 'text' not in data['header']['pageHeaderRenderer']['content']['pageHeaderViewModel']['title']['dynamicTextViewModel']:
+            return None
+        if 'attachmentRuns' not in data['header']['pageHeaderRenderer']['content']['pageHeaderViewModel']['title']['dynamicTextViewModel']['text']:
+            return None
+        attachmentRuns = data['header']['pageHeaderRenderer']['content']['pageHeaderViewModel']['title']['dynamicTextViewModel']['text']['attachmentRuns']
+        if len(attachmentRuns) == 0:
+            return None
+        if 'element' not in attachmentRuns[0]:
+            return None
+        if 'type' not in attachmentRuns[0]['element']:
+            return None
+        if 'imageType' not in attachmentRuns[0]['element']['type']:
+            return None
+        if 'image' not in attachmentRuns[0]['element']['type']['imageType']:
+            return None
+        if 'sources' not in attachmentRuns[0]['element']['type']['imageType']['image']:
+            return None
+        sources = attachmentRuns[0]['element']['type']['imageType']['image']['sources']
+        if len(sources) == 0:
+            return None
+        if 'clientResource' not in sources[0]:
+            return None
+        if 'imageName' not in sources[0]['clientResource']:
+            return None
+        imageName = sources[0]['clientResource']['imageName']
+        if imageName == 'MUSIC_FILLED':
+            return 'OFFICIAL_ARTIST_BADGE'
+        if imageName == 'CHECK_CIRCLE_FILLED':
+            return 'CHECK_CIRCLE_THICK'
+        return None
 
     @staticmethod
-    def is_membership_active_on(youtube_channel) -> str | None:
-        if 'sponsorButton' in youtube_channel:
+    def is_membership_active_on(data) -> str | None:
+        if len(data['header']['pageHeaderRenderer']['content']['pageHeaderViewModel']['actions']['flexibleActionsViewModel']['actionsRows'][0]['actions']) > 1:
             return True
         return False
 
