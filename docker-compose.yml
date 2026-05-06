@@ -1,0 +1,116 @@
+name: update-sheet-worker
+
+x-service-account-volume: &service-account-volume
+  type: bind
+  source: ${HOST_SERVICE_ACCOUNT_FILE:-./credentials/google-service-account.json}
+  target: /run/secrets/google-service-account.json
+  read_only: true
+
+x-youtube-job: &youtube-job
+  build:
+    context: .
+  image: update-sheet-worker-youtube-channel-id:latest
+  init: true
+  command: ["python", "/app/main_youtube_by_channel_id.py"]
+  environment:
+    SERVICE_ACCOUNT_FILE: /run/secrets/google-service-account.json
+  user: "${RUN_UID:-1000}:${RUN_GID:-1000}"
+
+services:
+  youtube-id:
+    <<: *youtube-job
+    working_dir: /app/csv/id
+    env_file:
+      - path: env/youtube.common.env
+        required: false
+      - path: env/youtube-id.env
+        required: false
+    volumes:
+      - *service-account-volume
+      - type: bind
+        source: ./csv/id/outputs
+        target: /app/csv/id/outputs
+
+  youtube-kh:
+    <<: *youtube-job
+    working_dir: /app/csv/kh
+    env_file:
+      - path: env/youtube.common.env
+        required: false
+      - path: env/youtube-kh.env
+        required: false
+    volumes:
+      - *service-account-volume
+      - type: bind
+        source: ./csv/kh/outputs
+        target: /app/csv/kh/outputs
+
+  youtube-my:
+    <<: *youtube-job
+    working_dir: /app/csv/my
+    env_file:
+      - path: env/youtube.common.env
+        required: false
+      - path: env/youtube-my.env
+        required: false
+    volumes:
+      - *service-account-volume
+      - type: bind
+        source: ./csv/my/outputs
+        target: /app/csv/my/outputs
+
+  youtube-ph:
+    <<: *youtube-job
+    working_dir: /app/csv/ph
+    env_file:
+      - path: env/youtube.common.env
+        required: false
+      - path: env/youtube-ph.env
+        required: false
+    volumes:
+      - *service-account-volume
+      - type: bind
+        source: ./csv/ph/outputs
+        target: /app/csv/ph/outputs
+
+  youtube-sg:
+    <<: *youtube-job
+    working_dir: /app/csv/sg
+    env_file:
+      - path: env/youtube.common.env
+        required: false
+      - path: env/youtube-sg.env
+        required: false
+    volumes:
+      - *service-account-volume
+      - type: bind
+        source: ./csv/sg/outputs
+        target: /app/csv/sg/outputs
+
+  youtube-th:
+    <<: *youtube-job
+    working_dir: /app/csv/th
+    env_file:
+      - path: env/youtube.common.env
+        required: false
+      - path: env/youtube-th.env
+        required: false
+    volumes:
+      - *service-account-volume
+      - type: bind
+        source: ./csv/th/outputs
+        target: /app/csv/th/outputs
+
+  youtube-vn:
+    <<: *youtube-job
+    working_dir: /app/csv/vn
+    env_file:
+      - path: env/youtube.common.env
+        required: false
+      - path: env/youtube-vn.env
+        required: false
+    volumes:
+      - *service-account-volume
+      - type: bind
+        source: ./csv/vn/outputs
+        target: /app/csv/vn/outputs
