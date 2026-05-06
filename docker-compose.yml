@@ -14,7 +14,7 @@ x-youtube-job: &youtube-job
   command: ["python", "/app/main_youtube_by_channel_id.py"]
   environment:
     SERVICE_ACCOUNT_FILE: /run/secrets/google-service-account.json
-  user: "${RUN_UID:-1000}:${RUN_GID:-1000}"
+  user: "${RUN_UID:-0}:${RUN_GID:-0}"
 
 services:
   youtube-id:
